@@ -1,4 +1,5 @@
 import React, { FC, Fragment } from 'react'
+import { LoadingContextProvider } from 'vtex.render-runtime'
 import product from 'vtex.store-resources/QueryProduct'
 import ProductContextProvider from 'vtex.product-context/ProductContextProvider'
 import { useQuery } from 'react-apollo'
@@ -8,7 +9,7 @@ const Wrapper: FC<{ query: Record<string, string> }> = ({
   query,
   children,
 }) => {
-  const { data } = useQuery(product, {
+  const { data, loading } = useQuery(product, {
     variables: {
       slug: SLUG,
       skipCategoryTree: true,
@@ -20,7 +21,9 @@ const Wrapper: FC<{ query: Record<string, string> }> = ({
   return (
     <Fragment>
       <ProductContextProvider query={query} product={data?.product}>
-        {children}
+        <LoadingContextProvider value={loading}>
+          {children}
+        </LoadingContextProvider>
       </ProductContextProvider>
     </Fragment>
   )
