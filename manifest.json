@@ -12,6 +12,10 @@
   },
   "dependencies": {
     "vtex.store": "2.x",
+    "vtex.search-graphql": "0.x",
+    "vtex.store-graphql": "2.x",
+    "vtex.store-resources": "0.x",
+    "vtex.product-context": "0.x",
     "vtex.rich-text": "0.x"
   },
   "registries": ["smartcheckout"],

@@ -1,5 +1,5 @@
 {
-  "name": "CHANGE_ME",
+  "name": "daily-pack",
   "version": "0.0.0",
   "scripts": {
     "test": "vtex-test-tools test"
@@ -21,6 +21,13 @@
     "apollo-cache-inmemory": "^1.6.5",
     "graphql": "^14.6.0",
     "prop-types": "^15.7.2",
-    "typescript": "3.8.3"
+    "typescript": "3.8.3",
+    "vtex.render-runtime": "http://vtex.vtexassets.com/_v/public/typings/v1/vtex.render-runtime@8.109.0/public/@types/vtex.render-runtime",
+    "vtex.rich-text": "http://vtex.vtexassets.com/_v/public/typings/v1/vtex.rich-text@0.10.0/public/@types/vtex.rich-text",
+    "vtex.search-graphql": "http://vtex.vtexassets.com/_v/public/typings/v1/vtex.search-graphql@0.28.0/public/_types/react",
+    "vtex.store": "http://vtex.vtexassets.com/_v/public/typings/v1/vtex.store@2.96.2/public/@types/vtex.store",
+    "vtex.store-graphql": "http://vtex.vtexassets.com/_v/public/typings/v1/vtex.store-graphql@2.123.4/public/@types/vtex.store-graphql",
+    "vtex.store-resources": "http://vtex.vtexassets.com/_v/public/typings/v1/vtex.store-resources@0.61.0/public/_types/react",
+    "vtex.product-context": "http://vtex.vtexassets.com/_v/public/typings/v1/vtex.product-context@0.7.1/public/@types/vtex.product-context"
   }
 }
