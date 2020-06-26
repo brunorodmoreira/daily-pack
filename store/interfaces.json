@@ -1,1 +1,8 @@
-{}
+{
+  "store.custom.daily-pack": {
+    "around": ["wrapper"]
+  },
+  "wrapper": {
+    "component": "Wrapper"
+  }
+}
