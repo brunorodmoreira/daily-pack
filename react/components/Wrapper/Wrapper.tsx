@@ -1,10 +1,11 @@
-import React, { FC, Fragment, useEffect } from 'react'
+import React, { FC, Fragment } from 'react'
 import { LoadingContextProvider } from 'vtex.render-runtime'
 import ProductContextProvider from 'vtex.product-context/ProductContextProvider'
 import { useQuery } from 'react-apollo'
 import PRODUCT_QUERY from 'vtex.store-resources/QueryProduct'
 
 import DOCUMENTS_QUERY from '../../graphql/documents.graphql'
+import { DailyPackContextProvider } from '../../context/DailyPackContext'
 
 const SLUG = 'daily-pack'
 const ACRONYM = 'dailypack'
@@ -38,17 +39,14 @@ const Wrapper: FC<{ query: Record<string, string> }> = ({
     }
   )
 
-  useEffect(() => {
-    // eslint-disable-next-line no-console
-    console.log(documentsData)
-  }, [documentsData])
-
   return (
     <Fragment>
       <ProductContextProvider query={query} product={productData?.product}>
-        <LoadingContextProvider value={productLoading && documentsLoading}>
-          {children}
-        </LoadingContextProvider>
+        <DailyPackContextProvider documents={documentsData?.documents}>
+          <LoadingContextProvider value={productLoading && documentsLoading}>
+            {children}
+          </LoadingContextProvider>
+        </DailyPackContextProvider>
       </ProductContextProvider>
     </Fragment>
   )
