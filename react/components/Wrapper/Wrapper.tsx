@@ -4,8 +4,10 @@ import ProductContextProvider from 'vtex.product-context/ProductContextProvider'
 import { useQuery } from 'react-apollo'
 import PRODUCT_QUERY from 'vtex.store-resources/QueryProduct'
 
+import CONSUMPTION_QUERY from '../../graphql/consumption.graphql'
 import DOCUMENTS_QUERY from '../../graphql/documents.graphql'
 import { DailyPackContextProvider } from '../../context/DailyPackContext'
+import WithOrderForm from '../../hocs/withOrderForm'
 
 const SLUG = 'daily-pack'
 const ACRONYM = 'dailypack'
@@ -13,10 +15,14 @@ const FIELDS = ['element', 'dailyDosage']
 const SCHEMA = 'v1'
 const COUNTRY = 'CAN'
 
-const Wrapper: FC<{ query: Record<string, string> }> = ({
-  query,
-  children,
-}) => {
+const Wrapper: FC<{
+  query: Record<string, string>
+  orderForm: { items: Array<{ productId: string }> }
+}> = ({ query, orderForm, children }) => {
+  const productIds = orderForm
+    ? orderForm.items.map(item => item.productId)
+    : []
+
   const { data: productData, loading: productLoading } = useQuery(
     PRODUCT_QUERY,
     {
@@ -41,6 +47,16 @@ const Wrapper: FC<{ query: Record<string, string> }> = ({
     }
   )
 
+  const { data: consumptionData } = useQuery(CONSUMPTION_QUERY, {
+    variables: {
+      productIds,
+    },
+    skip: productIds.length === 0,
+  })
+
+  // eslint-disable-next-line no-console
+  console.log(consumptionData)
+
   return (
     <Fragment>
       <ProductContextProvider query={query} product={productData?.product}>
@@ -54,4 +70,4 @@ const Wrapper: FC<{ query: Record<string, string> }> = ({
   )
 }
 
-export default Wrapper
+export default WithOrderForm(Wrapper)
