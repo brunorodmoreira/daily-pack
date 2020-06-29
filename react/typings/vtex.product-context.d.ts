@@ -1,4 +1,5 @@
 interface Product {
+  productId: string
   properties: Array<{
     name: string
     values: string[]

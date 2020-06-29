@@ -1,5 +1,5 @@
 import React, { FC, Fragment, useCallback, useMemo } from 'react'
-import { useChildBlock, ExtensionPoint } from 'vtex.render-runtime'
+import { ExtensionPoint } from 'vtex.render-runtime'
 import useProduct from 'vtex.product-context/useProduct'
 
 import { useDailyPack } from '../../context/DailyPackContext'
@@ -10,9 +10,6 @@ const ELEMENT = 'ELEMENT'
 const Controller: FC = () => {
   const { product } = useProduct()
   const { table } = useDailyPack()
-  const hasButton = useChildBlock({
-    id: 'add-to-cart-button',
-  })
 
   const getPropertyValue = useCallback(
     propertyName => {
@@ -52,12 +49,12 @@ const Controller: FC = () => {
 
   return (
     <Fragment>
-      <div>Dosage: {dosage ?? 'not specified'}</div>
-      <div>Element: {element ?? 'not specified'}</div>
-      <div>Daily Dosage Allowed: {dailyDosage ?? 'not specified'}</div>
-      {hasButton ? (
-        <ExtensionPoint id="add-to-cart-button" disabled={!allowed} />
-      ) : null}
+      <div>{JSON.stringify(product?.properties)}</div>
+      {allowed ? (
+        <ExtensionPoint id="add-to-cart-button" />
+      ) : (
+        <div className="bg-red white">Daily Dosage Reached</div>
+      )}
     </Fragment>
   )
 }

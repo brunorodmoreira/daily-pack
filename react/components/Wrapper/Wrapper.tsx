@@ -17,7 +17,7 @@ const COUNTRY = 'CAN'
 
 const Wrapper: FC<{
   query: Record<string, string>
-  orderForm: { items: Array<{ productId: string }> }
+  orderForm: { items: Array<{ productId: string; quantity: number }> }
 }> = ({ query, orderForm, children }) => {
   const productIds = orderForm
     ? orderForm.items.map(item => item.productId)
@@ -54,13 +54,14 @@ const Wrapper: FC<{
     skip: productIds.length === 0,
   })
 
-  // eslint-disable-next-line no-console
-  console.log(consumptionData)
-
   return (
     <Fragment>
       <ProductContextProvider query={query} product={productData?.product}>
-        <DailyPackContextProvider documents={documentsData?.documents}>
+        <DailyPackContextProvider
+          documents={documentsData?.documents || []}
+          productProperties={consumptionData?.productsByIdentifier || []}
+          orderItems={orderForm.items || []}
+        >
           <LoadingContextProvider value={productLoading && documentsLoading}>
             {children}
           </LoadingContextProvider>
