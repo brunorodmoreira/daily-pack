@@ -28,9 +28,7 @@ export const DailyPackContextProvider: FC<Props> = ({
   documents,
   children,
 }) => {
-  const parsedDocuments:
-    | Array<Record<string, string>>
-    | undefined = useMemo(
+  const parsedDocuments = useMemo(
     () => documents?.map(value => fieldsToObject(value.fields)),
     [documents]
   )

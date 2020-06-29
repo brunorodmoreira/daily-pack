@@ -9,8 +9,9 @@ import { DailyPackContextProvider } from '../../context/DailyPackContext'
 
 const SLUG = 'daily-pack'
 const ACRONYM = 'dailypack'
-const FIELDS = ['country', 'element', 'dailyDosage']
+const FIELDS = ['element', 'dailyDosage']
 const SCHEMA = 'v1'
+const COUNTRY = 'CAN'
 
 const Wrapper: FC<{ query: Record<string, string> }> = ({
   query,
@@ -35,6 +36,7 @@ const Wrapper: FC<{ query: Record<string, string> }> = ({
         acronym: ACRONYM,
         schema: SCHEMA,
         fields: FIELDS,
+        where: `country=${COUNTRY}`,
       },
     }
   )

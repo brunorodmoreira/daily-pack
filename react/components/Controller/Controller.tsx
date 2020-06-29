@@ -6,7 +6,6 @@ import { useDailyPack } from '../../context/DailyPackContext'
 
 const DOSAGE = 'DOSAGE'
 const ELEMENT = 'ELEMENT'
-const COUNTRY = 'CAN'
 
 const Controller: FC = () => {
   const { product } = useProduct()
@@ -37,9 +36,7 @@ const Controller: FC = () => {
       return null
     }
     const data = table.find(
-      value =>
-        value.country === COUNTRY &&
-        value.element.toUpperCase() === element?.toUpperCase()
+      value => value.element.toUpperCase() === element?.toUpperCase()
     )
 
     return data?.dailyDosage
