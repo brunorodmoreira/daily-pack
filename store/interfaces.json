@@ -4,5 +4,9 @@
   },
   "wrapper": {
     "component": "Wrapper"
+  },
+  "dosage-controller": {
+    "component": "Controller",
+    "composition": "children"
   }
 }

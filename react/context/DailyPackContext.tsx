@@ -20,13 +20,17 @@ function fieldsToObject(fields: Field[]): Record<string, string> {
   }, {})
 }
 
-const DailyPackContext = React.createContext({})
+const DailyPackContext = React.createContext<{
+  table: Array<Record<string, string>>
+}>({ table: [] })
 
 export const DailyPackContextProvider: FC<Props> = ({
   documents,
   children,
 }) => {
-  const parsedDocuments = useMemo(
+  const parsedDocuments:
+    | Array<Record<string, string>>
+    | undefined = useMemo(
     () => documents?.map(value => fieldsToObject(value.fields)),
     [documents]
   )
