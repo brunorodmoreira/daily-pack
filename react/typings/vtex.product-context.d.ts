@@ -1,5 +1,8 @@
 interface Product {
   productId: string
+  items: Array<{
+    itemId: string
+  }>
   properties: Array<{
     name: string
     values: string[]
@@ -21,6 +24,8 @@ declare module 'vtex.product-context/ProductContextProvider' {
 declare module 'vtex.product-context/useProduct' {
   interface ProductContext {
     product: Product | null
+    selectedItem: { itemId: string }
+    selectedQuantity: number
   }
 
   const useProduct: () => ProductContext

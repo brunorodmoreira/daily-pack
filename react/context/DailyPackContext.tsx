@@ -1,4 +1,7 @@
-import React, { FC, useContext, useMemo } from 'react'
+import React, { FC, useCallback, useContext, useMemo, useState } from 'react'
+import { useQuery } from 'react-apollo'
+
+import CONSUMPTION_QUERY from '../graphql/consumption.graphql'
 
 interface Field {
   key: string
@@ -11,8 +14,6 @@ interface EntityDocument {
 
 interface Props {
   documents: EntityDocument[]
-  productProperties: Product[]
-  orderItems: Array<{ productId: string; quantity: number }>
 }
 
 function fieldsToObject(fields: Field[]): Record<string, string> {
@@ -22,26 +23,60 @@ function fieldsToObject(fields: Field[]): Record<string, string> {
   }, {})
 }
 
+interface AssemblyOption {
+  assemblyId: string
+  id: string
+  quantity: number
+  seller: string
+}
+
 const DailyPackContext = React.createContext<{
   table: Array<Record<string, string>>
   orderDosage: Record<string, number>
-}>({ table: [], orderDosage: {} })
+  options: AssemblyOption[]
+  addOptions: (args: { id: string; quantity: number }) => void
+}>({ table: [], orderDosage: {}, options: [], addOptions: () => {} })
 
 export const DailyPackContextProvider: FC<Props> = ({
   documents,
-  productProperties,
-  orderItems,
   children,
 }) => {
+  const [options, setOptions] = useState<AssemblyOption[]>([])
+
+  const productIds = useMemo(() => options.map(value => value.id), [options])
+
+  const { data } = useQuery(CONSUMPTION_QUERY, {
+    variables: {
+      productIds,
+    },
+    skip: productIds.length === 0,
+  })
+
+  const productProperties: Product[] = useMemo(
+    () => data?.productsByIdentifier || [],
+    [data]
+  )
+
+  const addOptions = useCallback(args => {
+    setOptions((prevState: AssemblyOption[]) => [
+      { assemblyId: 'dailypack_pills', seller: '1', ...args },
+      ...prevState.filter(value => value.id !== args.id),
+    ])
+  }, [])
+
   const parsedDocuments = useMemo(
     () => documents?.map(value => fieldsToObject(value.fields)),
     [documents]
   )
 
   const orderDosage = useMemo(() => {
-    return orderItems.reduce((acc: Record<string, number>, item) => {
-      const value = productProperties.find(
-        product => product.productId === item.productId
+    if (!options.length) {
+      return {}
+    }
+
+    return options.reduce((acc: Record<string, number>, item) => {
+      const value = productProperties.find((product: Product) =>
+        product.items.some(i => i.itemId === item.id)
       )
 
       const dosage = value?.properties.find(
@@ -64,10 +99,12 @@ export const DailyPackContextProvider: FC<Props> = ({
       acc[element] += Number(dosage) * item.quantity
       return acc
     }, {})
-  }, [orderItems, productProperties])
+  }, [productProperties, options])
 
   return (
-    <DailyPackContext.Provider value={{ table: parsedDocuments, orderDosage }}>
+    <DailyPackContext.Provider
+      value={{ table: parsedDocuments, orderDosage, options, addOptions }}
+    >
       Current Dosage: {JSON.stringify(orderDosage, null, 3)}
       {children}
     </DailyPackContext.Provider>

@@ -1,7 +1,9 @@
 query Consumption($productIds: [ID!]) {
-  productsByIdentifier(field: id, values: $productIds)
+  productsByIdentifier(field: sku, values: $productIds)
     @context(provider: "vtex.search-graphql") {
-    productId
+    items {
+      itemId
+    }
     properties {
       name
       values

@@ -1,15 +1,17 @@
-import React, { FC, Fragment, useCallback, useMemo } from 'react'
-import { ExtensionPoint } from 'vtex.render-runtime'
+import React, { FC, Fragment, useCallback, useMemo, useState } from 'react'
+// import { ExtensionPoint } from 'vtex.render-runtime'
 import useProduct from 'vtex.product-context/useProduct'
 
 import { useDailyPack } from '../../context/DailyPackContext'
+import QuantitySelector from '../QuantitySelector'
 
 const DOSAGE = 'DOSAGE'
 const ELEMENT = 'ELEMENT'
 
 const Controller: FC = () => {
-  const { product } = useProduct()
-  const { table } = useDailyPack()
+  const { product, selectedItem } = useProduct()
+  const [selectedQuantity, setSelectedQuantity] = useState(0)
+  const { table, orderDosage, addOptions } = useDailyPack()
 
   const getPropertyValue = useCallback(
     propertyName => {
@@ -44,17 +46,32 @@ const Controller: FC = () => {
       return true
     }
 
-    return Number(dosage) <= Number(dailyDosage)
-  }, [dosage, dailyDosage])
+    return (
+      Number(dosage) * selectedQuantity <
+      Number(dailyDosage) - (orderDosage[element as string] || 0)
+    )
+  }, [dosage, dailyDosage, orderDosage, element, selectedQuantity])
+
+  const handleClick: React.MouseEventHandler<HTMLDivElement> = e => {
+    e.preventDefault()
+    // Stop propagation so it doesn't trigger the Link component above
+    e.stopPropagation()
+  }
 
   return (
     <Fragment>
-      <div>{JSON.stringify(product?.properties)}</div>
-      {allowed ? (
-        <ExtensionPoint id="add-to-cart-button" />
-      ) : (
-        <div className="bg-red white">Daily Dosage Reached</div>
+      {allowed ? null : (
+        <div className="bg-red white">Max daily dosage reached!</div>
       )}
+      {/* eslint-disable-next-line jsx-a11y/click-events-have-key-events,jsx-a11y/no-static-element-interactions */}
+      <div onClick={handleClick}>
+        <QuantitySelector
+          skuId={selectedItem?.itemId}
+          addOptions={addOptions}
+          setSelectedQuantity={setSelectedQuantity}
+          maxValue={allowed ? 'Infinity' : selectedQuantity}
+        />
+      </div>
     </Fragment>
   )
 }

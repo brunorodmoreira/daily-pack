@@ -8,5 +8,8 @@
   "dosage-controller": {
     "component": "Controller",
     "composition": "children"
+  },
+  "add-to-cart-button.daily-pack": {
+    "component": "AddPackToCart"
   }
 }
