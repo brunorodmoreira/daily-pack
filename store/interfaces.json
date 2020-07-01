@@ -1,8 +1,11 @@
 {
   "store.custom.daily-pack": {
-    "around": ["DailyPackWrapper"]
+    "around": ["DailyPackWrapper", "ProductWrapper"]
   },
   "DailyPackWrapper": {
     "component": "DailyPackWrapper"
+  },
+  "ProductWrapper": {
+    "component": "ProductWrapper"
   }
 }

@@ -20,6 +20,7 @@ interface EntityDocument {
 
 interface Props {
   documents?: EntityDocument[]
+  dailyPackProduct: any
 }
 
 function fieldsToObject(fields: Field[]): Record<string, string> {
