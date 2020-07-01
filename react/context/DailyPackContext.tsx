@@ -3,7 +3,11 @@ import React, { FC, useContext, useMemo } from 'react'
 
 // import useProduct from 'vtex.product-context/useProduct'
 
-const DailyPackContext = React.createContext({})
+const DailyPackContext = React.createContext<{
+  table: any[]
+}>({
+  table: [],
+})
 
 interface Field {
   key: string
@@ -30,7 +34,8 @@ export const DailyPackContextProvider: FC<Props> = ({
   children,
 }) => {
   const table = useMemo(
-    () => documents?.map(documentUnit => fieldsToObject(documentUnit.fields)),
+    () =>
+      documents?.map(documentUnit => fieldsToObject(documentUnit.fields)) ?? [],
     [documents]
   )
 
@@ -38,7 +43,9 @@ export const DailyPackContextProvider: FC<Props> = ({
   console.log(table)
 
   return (
-    <DailyPackContext.Provider value={{}}>{children}</DailyPackContext.Provider>
+    <DailyPackContext.Provider value={{ table }}>
+      {children}
+    </DailyPackContext.Provider>
   )
 }
 
