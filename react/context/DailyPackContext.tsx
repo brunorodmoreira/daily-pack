@@ -1,12 +1,20 @@
-// eslint-disable-next-line import/order
-import React, { FC, useContext, useMemo } from 'react'
+import React, { FC, useCallback, useContext, useMemo, useState } from 'react'
 
-// import useProduct from 'vtex.product-context/useProduct'
+interface Option {
+  assemblyId: string
+  id: string
+  quantity: number
+  seller: string
+}
 
 const DailyPackContext = React.createContext<{
   table: any[]
+  options: Option[]
+  addItem: (args: { id: string }) => void
 }>({
   table: [],
+  options: [],
+  addItem: () => {},
 })
 
 interface Field {
@@ -20,7 +28,6 @@ interface EntityDocument {
 
 interface Props {
   documents?: EntityDocument[]
-  dailyPackProduct: any
 }
 
 function fieldsToObject(fields: Field[]): Record<string, string> {
@@ -34,6 +41,34 @@ export const DailyPackContextProvider: FC<Props> = ({
   documents,
   children,
 }) => {
+  const [options, setOptions] = useState<Option[]>([])
+
+  const addItem = useCallback(
+    (args: { id: string }) => {
+      setOptions(prevState => {
+        const newOptions = [...prevState]
+
+        const opt = newOptions.find(value => value.id === args.id)
+
+        if (opt) {
+          opt.quantity++
+          return newOptions
+        }
+
+        return [
+          ...newOptions,
+          {
+            assemblyId: 'dailypack_pills',
+            seller: '1',
+            quantity: 1,
+            id: args.id,
+          },
+        ]
+      })
+    },
+    [setOptions]
+  )
+
   const table = useMemo(
     () =>
       documents?.map(documentUnit => fieldsToObject(documentUnit.fields)) ?? [],
@@ -44,7 +79,7 @@ export const DailyPackContextProvider: FC<Props> = ({
   console.log(table)
 
   return (
-    <DailyPackContext.Provider value={{ table }}>
+    <DailyPackContext.Provider value={{ table, options, addItem }}>
       {children}
     </DailyPackContext.Provider>
   )

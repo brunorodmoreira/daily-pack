@@ -1,6 +1,5 @@
 import React, { FC } from 'react'
 import { useQuery } from 'react-apollo'
-import useProduct from 'vtex.product-context/useProduct'
 
 import { DailyPackContextProvider } from '../../context/DailyPackContext'
 import DAILY_PACK_QUERY from '../../graphql/dailypack.graphql'
@@ -8,7 +7,6 @@ import DAILY_PACK_QUERY from '../../graphql/dailypack.graphql'
 const COUNTRY = 'CAN'
 
 const DailyPackWrapper: FC = ({ children }) => {
-  const { selectedItem } = useProduct()
   const { data } = useQuery(DAILY_PACK_QUERY, {
     variables: {
       where: `country=${COUNTRY}`,
@@ -16,10 +14,7 @@ const DailyPackWrapper: FC = ({ children }) => {
   })
 
   return (
-    <DailyPackContextProvider
-      documents={data?.documents}
-      dailyPackProduct={selectedItem}
-    >
+    <DailyPackContextProvider documents={data?.documents}>
       {children}
     </DailyPackContextProvider>
   )
