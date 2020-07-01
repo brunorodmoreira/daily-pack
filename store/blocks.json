@@ -1,58 +1,5 @@
 {
   "store.custom.daily-pack": {
-    "children": [
-      "list-context.product-list#daily-pack",
-      "add-to-cart-button.daily-pack"
-    ]
-  },
-  "slider-layout#daily-pack": {
-    "props": {
-      "itemsPerPage": {
-        "desktop": 5,
-        "tablet": 3,
-        "phone": 1
-      },
-      "infinite": true,
-      "fullWidth": false,
-      "blockClass": "shelf"
-    }
-  },
-  "list-context.product-list#daily-pack": {
-    "blocks": ["product-summary.shelf#daily-pack"],
-    "children": ["slider-layout#daily-pack"],
-    "props": {
-      "category": "23/27",
-      "orderBy": "OrderByNameASC"
-    }
-  },
-  "product-summary.shelf#daily-pack": {
-    "children": [
-      "product-summary-image#shelf",
-      "product-summary-name",
-      "product-summary-space",
-      "dosage-controller"
-    ]
-  },
-  "product-summary-image#shelf": {
-    "props": {
-      "showBadge": false,
-      "aspectRatio": "1:1",
-      "maxHeight": 300
-    }
-  },
-
-  "product-summary-image": {
-    "props": {
-      "height": 220
-    }
-  },
-
-  "product-summary-specification-badges": {
-    "props": {
-      "specificationGroupName": "Group",
-      "specificationName": "On Sale",
-      "visibleWhen": "True",
-      "displayValue": "SPECIFICATION_NAME"
-    }
+    "children": []
   }
 }
