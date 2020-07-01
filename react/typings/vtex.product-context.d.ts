@@ -1,3 +1,17 @@
+interface CompositionItem {
+  id: string
+}
+
+interface AssemblyOption {
+  id: string
+  composition: { items: CompositionItem[] }
+}
+
+interface ItemMetadataUnit {
+  id: string
+  assemblyOptions: AssemblyOption[]
+}
+
 interface Product {
   productId: string
   items: Array<{
@@ -7,6 +21,7 @@ interface Product {
     name: string
     values: string[]
   }>
+  itemMetadata: { items: ItemMetadataUnit[] }
 }
 
 declare module 'vtex.product-context/ProductContextProvider' {
@@ -25,7 +40,6 @@ declare module 'vtex.product-context/useProduct' {
   interface ProductContext {
     product: Product | null
     selectedItem: { itemId: string }
-    selectedQuantity: number
   }
 
   const useProduct: () => ProductContext

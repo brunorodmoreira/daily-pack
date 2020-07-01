@@ -1,0 +1,13 @@
+query DailyPack($where: String) {
+  documents(
+    acronym: "dailypack"
+    schema: "v1"
+    fields: ["element", "dailyDosage"]
+    where: $where
+  ) @context(provider: "vtex.store-graphql") {
+    fields {
+      key
+      value
+    }
+  }
+}
