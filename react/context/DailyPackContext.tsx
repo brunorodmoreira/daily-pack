@@ -10,10 +10,12 @@ interface Option {
 const DailyPackContext = React.createContext<{
   table: any[]
   options: Option[]
-  addItem: (args: { id: string }) => void
+  blockedElements: string[]
+  addItem: (args: { id: string; dosage: string; element: string }) => void
 }>({
   table: [],
   options: [],
+  blockedElements: [],
   addItem: () => {},
 })
 
@@ -42,9 +44,17 @@ export const DailyPackContextProvider: FC<Props> = ({
   children,
 }) => {
   const [options, setOptions] = useState<Option[]>([])
+  const [orderDosage, setOrderDosage] = useState<Record<string, number>>({})
+  const [blockedElements, setBlockedElements] = useState<string[]>([])
+
+  const table = useMemo(
+    () =>
+      documents?.map(documentUnit => fieldsToObject(documentUnit.fields)) ?? [],
+    [documents]
+  )
 
   const addItem = useCallback(
-    (args: { id: string }) => {
+    (args: { id: string; dosage: string; element: string }) => {
       setOptions(prevState => {
         const newOptions = [...prevState]
 
@@ -65,21 +75,32 @@ export const DailyPackContextProvider: FC<Props> = ({
           },
         ]
       })
+
+      setOrderDosage(prevState => ({
+        ...prevState,
+        [args.element]:
+          (prevState[args.element] || 0) + Number(args.dosage) || 0,
+      }))
+
+      const dailyDosage = table.find(
+        value => value.element.toLowerCase() === args.element?.toLowerCase()
+      )?.dailyDosage
+
+      setBlockedElements(
+        Object.keys(orderDosage).filter(
+          el =>
+            !dailyDosage ||
+            orderDosage[el] + Number(args.dosage) < Number(dailyDosage)
+        )
+      )
     },
-    [setOptions]
+    [setOptions, table, orderDosage]
   )
-
-  const table = useMemo(
-    () =>
-      documents?.map(documentUnit => fieldsToObject(documentUnit.fields)) ?? [],
-    [documents]
-  )
-
-  // eslint-disable-next-line no-console
-  console.log(table)
 
   return (
-    <DailyPackContext.Provider value={{ table, options, addItem }}>
+    <DailyPackContext.Provider
+      value={{ table, options, addItem, blockedElements }}
+    >
       {children}
     </DailyPackContext.Provider>
   )
