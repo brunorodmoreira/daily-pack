@@ -1,6 +1,7 @@
 import React, { FC, useMemo } from 'react'
 import useProduct from 'vtex.product-context/useProduct'
 import { Button } from 'vtex.styleguide'
+import { applyModifiers } from 'vtex.css-handles'
 
 import { useDailyPack } from '../../context/DailyPackContext'
 import styles from './styles.css'
@@ -49,7 +50,12 @@ const AddItemToPack: FC = () => {
 
   return (
     <Button onClick={handleClick} disabled={!isElementAllowed}>
-      <div className={`${styles.container} flex justify-center`}>
+      <div
+        className={`${applyModifiers(
+          styles.container,
+          isElementAllowed ? '' : 'disabled'
+        )} flex justify-center`}
+      >
         <span className={styles.buttonText}>Add to Pack</span>
       </div>
     </Button>

@@ -20,10 +20,7 @@
     "vtex.styleguide": "9.x",
     "vtex.order-items": "0.x",
     "vtex.checkout-resources": "0.x",
-    "vtex.product-summary": "2.x",
-    "vtex.slider-layout": "0.x",
-    "vtex.add-to-cart-button": "0.x",
-    "vtex.flex-layout": "0.x",
+    "vtex.css-handles": "0.x",
     "vtex.product-list": "0.x"
   },
   "registries": ["smartcheckout"],
