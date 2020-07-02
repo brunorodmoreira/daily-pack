@@ -49,16 +49,16 @@ const AddItemToPack: FC = () => {
   }
 
   return (
-    <Button onClick={handleClick} disabled={!isElementAllowed}>
-      <div
-        className={`${applyModifiers(
-          styles.addItemContainer,
-          isElementAllowed ? '' : 'disabled'
-        )} flex justify-center`}
-      >
+    <div
+      className={`${applyModifiers(
+        styles.addItemContainer,
+        isElementAllowed ? '' : 'disabled'
+      )} flex justify-center`}
+    >
+      <Button block onClick={handleClick}>
         <span className={styles.addItemButtonText}>Add to Pack</span>
-      </div>
-    </Button>
+      </Button>
+    </div>
   )
 }
 
