@@ -17,9 +17,6 @@ const OrderPackTable: FC = props => {
     skip: itemIds.length === 0,
   })
 
-  // eslint-disable-next-line no-console
-  console.log(data)
-
   const items = useMemo(() => {
     return (
       data?.productsByIdentifier.map((value: any) => {
