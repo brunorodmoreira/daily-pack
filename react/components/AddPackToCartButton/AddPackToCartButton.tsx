@@ -3,6 +3,7 @@ import { Button } from 'vtex.styleguide'
 import { useOrderItems } from 'vtex.order-items/OrderItems'
 
 import { useDailyPack } from '../../context/DailyPackContext'
+import styles from './styles.css'
 
 const AddPackToCartButton = () => {
   const { addItem } = useOrderItems()
@@ -22,11 +23,11 @@ const AddPackToCartButton = () => {
     )
   }
   return (
-    <div>
-      <span className="mb4">
-        <Button onClick={handleClick}>SUBSCRIBE</Button>
-      </span>
-    </div>
+    <Button onClick={handleClick}>
+      <div className={`${styles.container} flex justify-center`}>
+        <span className={styles.buttonText}>Subscribe</span>
+      </div>
+    </Button>
   )
 }
 
