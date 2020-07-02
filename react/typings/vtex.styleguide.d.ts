@@ -3,6 +3,7 @@ declare module 'vtex.styleguide' {
 
   export const Button: React.FC<{
     onClick: (any) => void
+    block?: boolean
     disabled?: boolean
   }>
 }
