@@ -4,7 +4,11 @@ interface CompositionItem {
 
 interface AssemblyOption {
   id: string
-  composition: { items: CompositionItem[] }
+  composition: {
+    items: CompositionItem[]
+    minQuantity: number
+    maxQuantity: number
+  }
 }
 
 interface ItemMetadataUnit {
