@@ -48,11 +48,11 @@ const AddPackToCartButton = () => {
     <Button onClick={handleClick} disabled={!isAllowed}>
       <div
         className={`${applyModifiers(
-          styles.container,
+          styles.addPackContainer,
           isAllowed ? '' : 'disabled'
         )} flex justify-center`}
       >
-        <span className={styles.buttonText}>Subscribe</span>
+        <span className={styles.addPackButtonText}>Subscribe</span>
       </div>
     </Button>
   )
