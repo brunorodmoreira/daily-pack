@@ -4,7 +4,7 @@ declare module 'vtex.styleguide' {
   export const Button: React.FC<{
     variation: string
     onClick: (any) => void
-    disabled: boolean
+    disabled?: boolean
   }>
   export const NumericStepper: React.FC<{
     label: string

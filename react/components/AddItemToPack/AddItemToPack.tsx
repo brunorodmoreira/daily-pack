@@ -6,7 +6,7 @@ import { useDailyPack } from '../../context/DailyPackContext'
 
 const AddItemToPack: FC = () => {
   const { product, selectedItem } = useProduct()
-  const { addItem, blockedElements } = useDailyPack()
+  const { addItem, table, orderDosage } = useDailyPack()
 
   const dosage = useMemo(
     () =>
@@ -21,23 +21,41 @@ const AddItemToPack: FC = () => {
     [product]
   )
 
+  const dailyDosage = useMemo(
+    () =>
+      table.find(
+        value => value.element.toLowerCase() === element?.toLowerCase()
+      )?.dailyDosage,
+    [table, element]
+  )
+
+  const isElementAllowed = useMemo(() => {
+    return (
+      typeof element === 'undefined' ||
+      typeof dosage === 'undefined' ||
+      (orderDosage[element] || 0) + Number(dosage) <= Number(dailyDosage)
+    )
+  }, [element, dosage, orderDosage, dailyDosage])
+
   const handleClick = (event: React.MouseEvent<HTMLButtonElement>) => {
     event.stopPropagation()
     event.preventDefault()
-    addItem({ id: selectedItem.itemId, element, dosage })
-  }
 
-  const isBlocked = useMemo(
-    () => element === undefined || blockedElements.includes(element),
-    [blockedElements, element]
-  )
+    if (isElementAllowed) {
+      addItem({ id: selectedItem.itemId, element, dosage })
+    }
+  }
 
   return (
     <div>
-      <Button variation="primary" onClick={handleClick} disabled={isBlocked}>
+      <Button
+        variation="primary"
+        onClick={handleClick}
+        disabled={!isElementAllowed}
+      >
         Add to Pack
       </Button>
-      {isBlocked ? (
+      {!isElementAllowed ? (
         <div className="bg-red white">Daily dose limit reached</div>
       ) : null}
     </div>

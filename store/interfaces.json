@@ -8,8 +8,10 @@
   "ProductWrapper": {
     "component": "ProductWrapper"
   },
-
   "add-item-to-pack": {
     "component": "AddItemToPack"
+  },
+  "add-pack-to-cart-button": {
+    "component": "AddPackToCartButton"
   }
 }

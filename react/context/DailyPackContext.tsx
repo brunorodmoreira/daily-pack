@@ -10,12 +10,12 @@ interface Option {
 const DailyPackContext = React.createContext<{
   table: any[]
   options: Option[]
-  blockedElements: string[]
+  orderDosage: Record<string, number>
   addItem: (args: { id: string; dosage?: string; element?: string }) => void
 }>({
   table: [],
   options: [],
-  blockedElements: [],
+  orderDosage: {},
   addItem: () => {},
 })
 
@@ -45,7 +45,6 @@ export const DailyPackContextProvider: FC<Props> = ({
 }) => {
   const [options, setOptions] = useState<Option[]>([])
   const [orderDosage, setOrderDosage] = useState<Record<string, number>>({})
-  const [blockedElements, setBlockedElements] = useState<string[]>([])
 
   const table = useMemo(
     () =>
@@ -85,26 +84,12 @@ export const DailyPackContextProvider: FC<Props> = ({
         [args.element as string]:
           (prevState[args.element as string] || 0) + Number(args.dosage) || 0,
       }))
-
-      const dailyDosage = table.find(
-        value => value.element.toLowerCase() === args.element?.toLowerCase()
-      )?.dailyDosage
-
-      setBlockedElements(
-        Object.keys(orderDosage).filter(
-          el =>
-            !dailyDosage ||
-            orderDosage[el] + Number(args.dosage) >= Number(dailyDosage)
-        )
-      )
     },
-    [setOptions, table, orderDosage]
+    [setOptions]
   )
 
   return (
-    <DailyPackContext.Provider
-      value={{ table, options, addItem, blockedElements }}
-    >
+    <DailyPackContext.Provider value={{ table, options, addItem, orderDosage }}>
       {children}
     </DailyPackContext.Provider>
   )
