@@ -13,5 +13,9 @@
   },
   "add-pack-to-cart-button": {
     "component": "AddPackToCartButton"
+  },
+  "order-pack-table": {
+    "component": "OrderPackTable",
+    "allowed": ["product-list"]
   }
 }

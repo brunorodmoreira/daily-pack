@@ -23,7 +23,8 @@
     "vtex.product-summary": "2.x",
     "vtex.slider-layout": "0.x",
     "vtex.add-to-cart-button": "0.x",
-    "vtex.flex-layout": "0.x"
+    "vtex.flex-layout": "0.x",
+    "vtex.product-list": "0.x"
   },
   "registries": ["smartcheckout"],
   "policies": [],

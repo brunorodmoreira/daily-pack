@@ -1,6 +1,7 @@
 {
   "store.custom.daily-pack": {
     "children": [
+      "order-pack-table",
       "list-context.product-list#daily-pack",
       "flex-layout.row#add-pack-to-cart"
     ]
