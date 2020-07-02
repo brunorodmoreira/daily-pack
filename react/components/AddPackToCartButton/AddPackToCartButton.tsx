@@ -19,7 +19,15 @@ const AddPackToCartButton = () => {
           id: 106,
           quantity: 1,
           seller: '1',
-          options,
+          options: [
+            ...options,
+            {
+              assemblyId: 'vtex.subscription.dailypack',
+              inputValues: {
+                'vtex.subscription.key.frequency': '1month',
+              },
+            },
+          ],
         },
       ],
       {}
