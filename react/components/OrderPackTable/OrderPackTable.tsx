@@ -26,7 +26,7 @@ const OrderPackTable: FC = props => {
         const item = value.items?.[0]
         const imageUrl = item?.images?.[0].imageUrl
 
-        const price = value.items?.sellers?.[0].commertialOffer.Price
+        const price = value.priceRange.sellingPrice.lowPrice * 100
         return {
           id: value.productId,
           name: value.productName,

@@ -3,16 +3,16 @@ query Products($productIds: [ID!]) {
     @context(provider: "vtex.search-graphql") {
     productId
     productName
+    priceRange {
+      sellingPrice {
+        lowPrice
+      }
+    }
     items(filter: FIRST_AVAILABLE) {
       itemId
       name
       images {
         imageUrl
-      }
-      sellers {
-        commertialOffer {
-          Price
-        }
       }
     }
   }
