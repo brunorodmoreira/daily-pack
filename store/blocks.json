@@ -1,9 +1,17 @@
 {
   "store.custom.daily-pack": {
     "children": [
+      "order-pack-table",
       "list-context.product-list#daily-pack",
-      "add-to-cart-button.daily-pack"
+      "flex-layout.row#add-pack-to-cart"
     ]
+  },
+  "flex-layout.row#add-pack-to-cart": {
+    "children": ["add-pack-to-cart-button"],
+    "props": {
+      "preventHorizontalStretch": true,
+      "fullWidth": true
+    }
   },
   "slider-layout#daily-pack": {
     "props": {
@@ -30,7 +38,7 @@
       "product-summary-image#shelf",
       "product-summary-name",
       "product-summary-space",
-      "dosage-controller"
+      "add-item-to-pack"
     ]
   },
   "product-summary-image#shelf": {
@@ -44,15 +52,6 @@
   "product-summary-image": {
     "props": {
       "height": 220
-    }
-  },
-
-  "product-summary-specification-badges": {
-    "props": {
-      "specificationGroupName": "Group",
-      "specificationName": "On Sale",
-      "visibleWhen": "True",
-      "displayValue": "SPECIFICATION_NAME"
     }
   }
 }

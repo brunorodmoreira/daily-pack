@@ -1,15 +1,21 @@
 {
   "store.custom.daily-pack": {
-    "around": ["wrapper"]
+    "around": ["DailyPackWrapper", "ProductWrapper"]
   },
-  "wrapper": {
-    "component": "Wrapper"
+  "DailyPackWrapper": {
+    "component": "DailyPackWrapper"
   },
-  "dosage-controller": {
-    "component": "Controller",
-    "composition": "children"
+  "ProductWrapper": {
+    "component": "ProductWrapper"
   },
-  "add-to-cart-button.daily-pack": {
-    "component": "AddPackToCart"
+  "add-item-to-pack": {
+    "component": "AddItemToPack"
+  },
+  "add-pack-to-cart-button": {
+    "component": "AddPackToCartButton"
+  },
+  "order-pack-table": {
+    "component": "OrderPackTable",
+    "allowed": ["product-list"]
   }
 }

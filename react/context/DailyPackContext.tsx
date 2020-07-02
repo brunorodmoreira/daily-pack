@@ -1,7 +1,23 @@
 import React, { FC, useCallback, useContext, useMemo, useState } from 'react'
-import { useQuery } from 'react-apollo'
 
-import CONSUMPTION_QUERY from '../graphql/consumption.graphql'
+interface Option {
+  assemblyId: string
+  id: string
+  quantity: number
+  seller: string
+}
+
+const DailyPackContext = React.createContext<{
+  table: any[]
+  options: Option[]
+  orderDosage: Record<string, number>
+  addItem: (args: { id: string; dosage?: string; element?: string }) => void
+}>({
+  table: [],
+  options: [],
+  orderDosage: {},
+  addItem: () => {},
+})
 
 interface Field {
   key: string
@@ -13,7 +29,7 @@ interface EntityDocument {
 }
 
 interface Props {
-  documents: EntityDocument[]
+  documents?: EntityDocument[]
 }
 
 function fieldsToObject(fields: Field[]): Record<string, string> {
@@ -23,89 +39,57 @@ function fieldsToObject(fields: Field[]): Record<string, string> {
   }, {})
 }
 
-interface AssemblyOption {
-  assemblyId: string
-  id: string
-  quantity: number
-  seller: string
-}
-
-const DailyPackContext = React.createContext<{
-  table: Array<Record<string, string>>
-  orderDosage: Record<string, number>
-  options: AssemblyOption[]
-  addOptions: (args: { id: string; quantity: number }) => void
-}>({ table: [], orderDosage: {}, options: [], addOptions: () => {} })
-
 export const DailyPackContextProvider: FC<Props> = ({
   documents,
   children,
 }) => {
-  const [options, setOptions] = useState<AssemblyOption[]>([])
+  const [options, setOptions] = useState<Option[]>([])
+  const [orderDosage, setOrderDosage] = useState<Record<string, number>>({})
 
-  const productIds = useMemo(() => options.map(value => value.id), [options])
-
-  const { data } = useQuery(CONSUMPTION_QUERY, {
-    variables: {
-      productIds,
-    },
-    skip: productIds.length === 0,
-  })
-
-  const productProperties: Product[] = useMemo(
-    () => data?.productsByIdentifier || [],
-    [data]
-  )
-
-  const addOptions = useCallback(args => {
-    setOptions((prevState: AssemblyOption[]) => [
-      { assemblyId: 'dailypack_pills', seller: '1', ...args },
-      ...prevState.filter(value => value.id !== args.id),
-    ])
-  }, [])
-
-  const parsedDocuments = useMemo(
-    () => documents?.map(value => fieldsToObject(value.fields)),
+  const table = useMemo(
+    () =>
+      documents?.map(documentUnit => fieldsToObject(documentUnit.fields)) ?? [],
     [documents]
   )
 
-  const orderDosage = useMemo(() => {
-    if (!options.length) {
-      return {}
-    }
+  const addItem = useCallback(
+    (args: { id: string; dosage?: string; element?: string }) => {
+      setOptions(prevState => {
+        const newOptions = [...prevState]
 
-    return options.reduce((acc: Record<string, number>, item) => {
-      const value = productProperties.find((product: Product) =>
-        product.items.some(i => i.itemId === item.id)
-      )
+        const opt = newOptions.find(value => value.id === args.id)
 
-      const dosage = value?.properties.find(
-        property => property.name.toUpperCase() === 'DOSAGE'
-      )?.values?.[0]
+        if (opt) {
+          opt.quantity++
+          return newOptions
+        }
 
-      const element = value?.properties.find(
-        property => property.name.toUpperCase() === 'ELEMENT'
-      )?.values?.[0]
+        return [
+          ...newOptions,
+          {
+            assemblyId: 'dailypack_pills',
+            seller: '1',
+            quantity: 1,
+            id: args.id,
+          },
+        ]
+      })
 
-      if (!dosage || !element) {
-        return acc
+      if (typeof args.element !== 'string' || typeof args.dosage !== 'string') {
+        return
       }
 
-      if (acc[element] === undefined) {
-        acc[element] = Number(dosage) * item.quantity
-        return acc
-      }
-
-      acc[element] += Number(dosage) * item.quantity
-      return acc
-    }, {})
-  }, [productProperties, options])
+      setOrderDosage(prevState => ({
+        ...prevState,
+        [args.element as string]:
+          (prevState[args.element as string] || 0) + Number(args.dosage) || 0,
+      }))
+    },
+    [setOptions]
+  )
 
   return (
-    <DailyPackContext.Provider
-      value={{ table: parsedDocuments, orderDosage, options, addOptions }}
-    >
-      Current Dosage: {JSON.stringify(orderDosage, null, 3)}
+    <DailyPackContext.Provider value={{ table, options, addItem, orderDosage }}>
       {children}
     </DailyPackContext.Provider>
   )

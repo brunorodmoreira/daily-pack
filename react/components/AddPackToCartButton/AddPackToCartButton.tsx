@@ -1,15 +1,16 @@
 import React from 'react'
 import { Button } from 'vtex.styleguide'
-import AddToCart from 'vtex.checkout-resources/MutationAddToCart'
-import { useMutation } from 'react-apollo'
+import { useOrderItems } from 'vtex.order-items/OrderItems'
 
 import { useDailyPack } from '../../context/DailyPackContext'
 
-const AddPackToCart = () => {
+const AddPackToCartButton = () => {
+  const { addItem } = useOrderItems()
   const { options } = useDailyPack()
-  const [addItem] = useMutation(AddToCart, {
-    variables: {
-      items: [
+
+  const handleClick = () => {
+    addItem(
+      [
         {
           id: 106,
           quantity: 1,
@@ -17,18 +18,18 @@ const AddPackToCart = () => {
           options,
         },
       ],
-    },
-  })
-
+      {}
+    )
+  }
   return (
     <div>
       <span className="mb4">
-        <Button variation="primary" onClick={() => addItem()}>
-          Add Pack to Cart
+        <Button variation="primary" onClick={handleClick}>
+          SUBSCRIBE
         </Button>
       </span>
     </div>
   )
 }
 
-export default AddPackToCart
+export default AddPackToCartButton
