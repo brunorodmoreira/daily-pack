@@ -1,4 +1,4 @@
-import React, { FC, Fragment } from 'react'
+import React, { FC } from 'react'
 import product from 'vtex.store-resources/QueryProduct'
 import { LoadingContextProvider } from 'vtex.render-runtime'
 import ProductContextProvider from 'vtex.product-context/ProductContextProvider'
@@ -16,13 +16,11 @@ const ProductWrapper: FC = ({ children }) => {
     errorPolicy: 'all',
   })
   return (
-    <Fragment>
-      <ProductContextProvider query={{}} product={data?.product}>
-        <LoadingContextProvider value={loading}>
-          {children}
-        </LoadingContextProvider>
-      </ProductContextProvider>
-    </Fragment>
+    <ProductContextProvider query={{}} product={data?.product}>
+      <LoadingContextProvider value={loading}>
+        {children}
+      </LoadingContextProvider>
+    </ProductContextProvider>
   )
 }
 
