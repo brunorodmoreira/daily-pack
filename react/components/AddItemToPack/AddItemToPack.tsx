@@ -3,6 +3,7 @@ import useProduct from 'vtex.product-context/useProduct'
 import { Button } from 'vtex.styleguide'
 
 import { useDailyPack } from '../../context/DailyPackContext'
+import styles from './styles.css'
 
 const AddItemToPack: FC = () => {
   const { product, selectedItem } = useProduct()
@@ -47,18 +48,11 @@ const AddItemToPack: FC = () => {
   }
 
   return (
-    <div>
-      <Button
-        variation="primary"
-        onClick={handleClick}
-        disabled={!isElementAllowed}
-      >
-        Add to Pack
-      </Button>
-      {!isElementAllowed ? (
-        <div className="bg-red white">Daily dose limit reached</div>
-      ) : null}
-    </div>
+    <Button onClick={handleClick} disabled={!isElementAllowed}>
+      <div className={`${styles.container} flex justify-center`}>
+        <span className={styles.buttonText}>Add to Pack</span>
+      </div>
+    </Button>
   )
 }
 

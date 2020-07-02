@@ -24,9 +24,7 @@ const AddPackToCartButton = () => {
   return (
     <div>
       <span className="mb4">
-        <Button variation="primary" onClick={handleClick}>
-          SUBSCRIBE
-        </Button>
+        <Button onClick={handleClick}>SUBSCRIBE</Button>
       </span>
     </div>
   )
