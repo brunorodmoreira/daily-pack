@@ -11,7 +11,7 @@ const DailyPackContext = React.createContext<{
   table: any[]
   options: Option[]
   blockedElements: string[]
-  addItem: (args: { id: string; dosage: string; element: string }) => void
+  addItem: (args: { id: string; dosage?: string; element?: string }) => void
 }>({
   table: [],
   options: [],
@@ -54,7 +54,7 @@ export const DailyPackContextProvider: FC<Props> = ({
   )
 
   const addItem = useCallback(
-    (args: { id: string; dosage: string; element: string }) => {
+    (args: { id: string; dosage?: string; element?: string }) => {
       setOptions(prevState => {
         const newOptions = [...prevState]
 
@@ -76,10 +76,14 @@ export const DailyPackContextProvider: FC<Props> = ({
         ]
       })
 
+      if (typeof args.element !== 'string' || typeof args.dosage !== 'string') {
+        return
+      }
+
       setOrderDosage(prevState => ({
         ...prevState,
-        [args.element]:
-          (prevState[args.element] || 0) + Number(args.dosage) || 0,
+        [args.element as string]:
+          (prevState[args.element as string] || 0) + Number(args.dosage) || 0,
       }))
 
       const dailyDosage = table.find(
@@ -90,7 +94,7 @@ export const DailyPackContextProvider: FC<Props> = ({
         Object.keys(orderDosage).filter(
           el =>
             !dailyDosage ||
-            orderDosage[el] + Number(args.dosage) < Number(dailyDosage)
+            orderDosage[el] + Number(args.dosage) >= Number(dailyDosage)
         )
       )
     },

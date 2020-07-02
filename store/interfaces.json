@@ -7,5 +7,9 @@
   },
   "ProductWrapper": {
     "component": "ProductWrapper"
+  },
+
+  "add-item-to-pack": {
+    "component": "AddItemToPack"
   }
 }
