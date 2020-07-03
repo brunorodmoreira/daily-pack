@@ -35,6 +35,7 @@ const AddItemToPack: FC = () => {
     return (
       typeof element === 'undefined' ||
       typeof dosage === 'undefined' ||
+      typeof dailyDosage === 'undefined' ||
       (orderDosage[element] || 0) + Number(dosage) <= Number(dailyDosage)
     )
   }, [element, dosage, orderDosage, dailyDosage])
