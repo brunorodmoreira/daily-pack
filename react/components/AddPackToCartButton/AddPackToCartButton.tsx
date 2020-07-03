@@ -52,7 +52,7 @@ const AddPackToCartButton: FC<{ showToast: Function }> = ({ showToast }) => {
         duration: 5000,
         action: {
           label: 'See cart',
-          href: '/checkout/cart',
+          href: '/checkout',
           target: '_blank',
         },
       })
