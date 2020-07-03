@@ -36,9 +36,10 @@ const AddPackToCartButton = () => {
 
   const { minQuantity, maxQuantity } = useMemo(
     () =>
-      product?.itemMetadata.items.find(
-        value => value.id === selectedItem.itemId ?? 0
-      )?.assemblyOptions?.[0].composition ?? {
+      product?.itemMetadata.items
+        .find(value => value.id === selectedItem.itemId ?? 0)
+        ?.assemblyOptions.find(option => option.id === 'dailypack_pills')
+        ?.composition ?? {
         minQuantity: 0,
         maxQuantity: null,
       },
