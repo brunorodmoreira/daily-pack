@@ -1,12 +1,12 @@
 import React, { FC, useMemo } from 'react'
 import useProduct from 'vtex.product-context/useProduct'
-import { Button } from 'vtex.styleguide'
+import { Button, withToast } from 'vtex.styleguide'
 import { applyModifiers } from 'vtex.css-handles'
 
 import { useDailyPack } from '../../context/DailyPackContext'
 import styles from './styles.css'
 
-const AddItemToPack: FC = () => {
+const AddItemToPack: FC<{ showToast: Function }> = ({ showToast }) => {
   const { product, selectedItem } = useProduct()
   const { addItem, table, orderDosage } = useDailyPack()
 
@@ -46,6 +46,10 @@ const AddItemToPack: FC = () => {
 
     if (isElementAllowed) {
       addItem({ id: selectedItem.itemId, element, dosage })
+      showToast({
+        message: 'Item added to pack',
+        duration: 5000,
+      })
     }
   }
 
@@ -63,4 +67,4 @@ const AddItemToPack: FC = () => {
   )
 }
 
-export default AddItemToPack
+export default withToast(AddItemToPack)
