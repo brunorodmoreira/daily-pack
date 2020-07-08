@@ -17,14 +17,25 @@ const OrderPackTable: FC = props => {
     skip: itemIds.length === 0,
   })
 
-  const getUniqueId = (item: any): string =>
-    btoa(JSON.stringify({ id: item.itemId, element: 0, dosage: 0 }))
+  const getUniqueId = (
+    itemId: string,
+    element: string,
+    dosage: string
+  ): string => btoa(JSON.stringify({ id: itemId, element, dosage }))
 
   const items = useMemo(() => {
     return (
       data?.productsByIdentifier.map((value: any) => {
         const item = value.items?.[0]
         const imageUrl = item?.images?.[0].imageUrl
+
+        const dosage = value?.properties.find(
+          (prop: { name: string }) => prop.name.toLowerCase() === 'dosage'
+        )?.values?.[0]
+
+        const element = value?.properties.find(
+          (prop: { name: string }) => prop.name.toLowerCase() === 'element'
+        )?.values?.[0]
 
         const price = value.priceRange.sellingPrice.lowPrice * 100
         return {
@@ -40,7 +51,7 @@ const OrderPackTable: FC = props => {
           },
           price,
           sellingPrice: price,
-          uniqueId: getUniqueId(item),
+          uniqueId: getUniqueId(item.itemId, element, dosage),
         }
       }) || []
     )
