@@ -13,7 +13,7 @@ const AddPackToCartButton = () => {
   const { options } = useDailyPack()
 
   const handleClick = () => {
-    addItem(
+    const addedItems: boolean = addItem(
       [
         {
           id: 106,
@@ -32,6 +32,10 @@ const AddPackToCartButton = () => {
       ],
       {}
     )
+
+    if (addedItems) {
+      window.location.assign('/checkout')
+    }
   }
 
   const { minQuantity, maxQuantity } = useMemo(
