@@ -17,6 +17,9 @@ const OrderPackTable: FC = props => {
     skip: itemIds.length === 0,
   })
 
+  const getUniqueId = (item: any): string =>
+    btoa(JSON.stringify({ id: item.itemId, element: 0, dosage: 0 }))
+
   const items = useMemo(() => {
     return (
       data?.productsByIdentifier.map((value: any) => {
@@ -37,6 +40,7 @@ const OrderPackTable: FC = props => {
           },
           price,
           sellingPrice: price,
+          uniqueId: getUniqueId(item),
         }
       }) || []
     )
