@@ -5,8 +5,13 @@ import { useQuery } from 'react-apollo'
 import { useDailyPack } from '../../context/DailyPackContext'
 import PRODUCTS_QUERY from '../../graphql/products.graphql'
 
+const getUniqueId = (itemId: string, element: string, dosage: string): string =>
+  btoa(JSON.stringify({ id: itemId, element, dosage }))
+
+const parseUniqueId = (uniqueId: string): any => JSON.parse(atob(uniqueId))
+
 const OrderPackTable: FC = props => {
-  const { options } = useDailyPack()
+  const { options, removeItem, changeQuantity } = useDailyPack()
 
   const itemIds = useMemo(() => options.map(value => value.id), [options])
 
@@ -23,6 +28,14 @@ const OrderPackTable: FC = props => {
         const item = value.items?.[0]
         const imageUrl = item?.images?.[0].imageUrl
 
+        const dosage = value?.properties.find(
+          (prop: { name: string }) => prop.name.toLowerCase() === 'dosage'
+        )?.values?.[0]
+
+        const element = value?.properties.find(
+          (prop: { name: string }) => prop.name.toLowerCase() === 'element'
+        )?.values?.[0]
+
         const price = value.priceRange.sellingPrice.lowPrice * 100
         return {
           id: value.productId,
@@ -37,12 +50,23 @@ const OrderPackTable: FC = props => {
           },
           price,
           sellingPrice: price,
+          uniqueId: getUniqueId(item.itemId, element, dosage),
         }
       }) || []
     )
   }, [data, options])
 
-  return <ExtensionPoint id="product-list" {...props} items={items} />
+  return (
+    <ExtensionPoint
+      id="product-list"
+      {...props}
+      items={items}
+      onRemove={(uniqueId: string) => removeItem(parseUniqueId(uniqueId))}
+      onQuantityChange={(uniqueId: string, quantity: number) =>
+        changeQuantity(parseUniqueId(uniqueId), quantity)
+      }
+    />
+  )
 }
 
 export default OrderPackTable

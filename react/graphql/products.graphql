@@ -15,5 +15,9 @@ query Products($productIds: [ID!]) {
         imageUrl
       }
     }
+    properties {
+      name
+      values
+    }
   }
 }

@@ -1,22 +1,35 @@
-import React, { useMemo } from 'react'
-import { Button } from 'vtex.styleguide'
+import React, { FC, useMemo } from 'react'
+import { Button, withToast } from 'vtex.styleguide'
 import { useOrderItems } from 'vtex.order-items/OrderItems'
 import useProduct from 'vtex.product-context/useProduct'
 import { applyModifiers } from 'vtex.css-handles'
+import { useOrderForm } from 'vtex.order-manager/OrderForm'
 
 import { useDailyPack } from '../../context/DailyPackContext'
 import styles from './styles.css'
 
-const AddPackToCartButton = () => {
+const AddPackToCartButton: FC<{ showToast: Function }> = ({ showToast }) => {
   const { product, selectedItem } = useProduct()
   const { addItem } = useOrderItems()
   const { options } = useDailyPack()
 
+  const { orderForm } = useOrderForm()
+
   const handleClick = () => {
-    const addedItems: boolean = addItem(
+    const ITEM_ID = '106'
+    if (orderForm.items.some(item => item.id === ITEM_ID)) {
+      showToast({
+        message: 'Daily Pack already in your cart',
+        duration: 5000,
+      })
+
+      return
+    }
+
+    const addedItem = addItem(
       [
         {
-          id: 106,
+          id: ITEM_ID,
           quantity: 1,
           seller: '1',
           options: [
@@ -33,7 +46,16 @@ const AddPackToCartButton = () => {
       {}
     )
 
-    if (addedItems) {
+    if (addedItem) {
+      showToast({
+        message: 'Daily Pack added to cart',
+        duration: 5000,
+        action: {
+          label: 'See cart',
+          href: '/checkout',
+          target: '_blank',
+        },
+      })
       window.location.assign('/checkout')
     }
   }
@@ -71,4 +93,4 @@ const AddPackToCartButton = () => {
   )
 }
 
-export default AddPackToCartButton
+export default withToast(AddPackToCartButton)

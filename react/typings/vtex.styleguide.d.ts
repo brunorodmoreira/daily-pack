@@ -6,4 +6,6 @@ declare module 'vtex.styleguide' {
     block?: boolean
     disabled?: boolean
   }>
+
+  export const withToast = function (args: any): React.FC {}
 }
