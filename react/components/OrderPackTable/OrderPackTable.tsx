@@ -5,8 +5,13 @@ import { useQuery } from 'react-apollo'
 import { useDailyPack } from '../../context/DailyPackContext'
 import PRODUCTS_QUERY from '../../graphql/products.graphql'
 
+const getUniqueId = (itemId: string, element: string, dosage: string): string =>
+  btoa(JSON.stringify({ id: itemId, element, dosage }))
+
+const parseUniqueId = (uniqueId: string): any => JSON.parse(atob(uniqueId))
+
 const OrderPackTable: FC = props => {
-  const { options } = useDailyPack()
+  const { options, removeItem } = useDailyPack()
 
   const itemIds = useMemo(() => options.map(value => value.id), [options])
 
@@ -16,12 +21,6 @@ const OrderPackTable: FC = props => {
     },
     skip: itemIds.length === 0,
   })
-
-  const getUniqueId = (
-    itemId: string,
-    element: string,
-    dosage: string
-  ): string => btoa(JSON.stringify({ id: itemId, element, dosage }))
 
   const items = useMemo(() => {
     return (
@@ -57,7 +56,14 @@ const OrderPackTable: FC = props => {
     )
   }, [data, options])
 
-  return <ExtensionPoint id="product-list" {...props} items={items} />
+  return (
+    <ExtensionPoint
+      id="product-list"
+      {...props}
+      items={items}
+      onRemove={(uniqueId: string) => removeItem(parseUniqueId(uniqueId))}
+    />
+  )
 }
 
 export default OrderPackTable
