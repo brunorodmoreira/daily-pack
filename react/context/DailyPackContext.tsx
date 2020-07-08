@@ -10,7 +10,7 @@ interface Option {
 const noop = () => {}
 
 const DailyPackContext = React.createContext<{
-  table: any[]
+  table: Array<Record<string, string>>
   options: Option[]
   orderDosage: Record<string, number>
   addItem: (args: { id: string; dosage?: string; element?: string }) => void
@@ -127,6 +127,10 @@ export const DailyPackContextProvider: FC<Props> = ({
       args: { id: string; dosage?: string; element?: string },
       quantity: number
     ) => {
+      if (quantity === 0) {
+        removeItem(args)
+      }
+
       setOptions(prevState => {
         const newOptions = [...prevState]
 
@@ -139,8 +143,17 @@ export const DailyPackContextProvider: FC<Props> = ({
 
         return prevState
       })
+
+      if (typeof args.element !== 'string' || typeof args.dosage !== 'string') {
+        return
+      }
+
+      setOrderDosage(prevState => ({
+        ...prevState,
+        [args.element as string]: Number(args.dosage) * quantity,
+      }))
     },
-    [setOptions]
+    [removeItem, setOptions]
   )
 
   return (
