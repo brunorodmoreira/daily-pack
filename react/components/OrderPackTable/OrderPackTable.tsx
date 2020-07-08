@@ -11,7 +11,7 @@ const getUniqueId = (itemId: string, element: string, dosage: string): string =>
 const parseUniqueId = (uniqueId: string): any => JSON.parse(atob(uniqueId))
 
 const OrderPackTable: FC = props => {
-  const { options, removeItem } = useDailyPack()
+  const { options, removeItem, changeQuantity } = useDailyPack()
 
   const itemIds = useMemo(() => options.map(value => value.id), [options])
 
@@ -62,6 +62,9 @@ const OrderPackTable: FC = props => {
       {...props}
       items={items}
       onRemove={(uniqueId: string) => removeItem(parseUniqueId(uniqueId))}
+      onQuantityChange={(uniqueId: string, quantity: number) =>
+        changeQuantity(parseUniqueId(uniqueId), quantity)
+      }
     />
   )
 }

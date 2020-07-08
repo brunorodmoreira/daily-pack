@@ -15,12 +15,17 @@ const DailyPackContext = React.createContext<{
   orderDosage: Record<string, number>
   addItem: (args: { id: string; dosage?: string; element?: string }) => void
   removeItem: (args: { id: string; dosage?: string; element?: string }) => void
+  changeQuantity: (
+    args: { id: string; dosage?: string; element?: string },
+    quantity: number
+  ) => void
 }>({
   table: [],
   options: [],
   orderDosage: {},
   addItem: noop,
   removeItem: noop,
+  changeQuantity: noop,
 })
 
 interface Field {
@@ -117,9 +122,37 @@ export const DailyPackContextProvider: FC<Props> = ({
     [options, setOptions]
   )
 
+  const changeQuantity = useCallback(
+    (
+      args: { id: string; dosage?: string; element?: string },
+      quantity: number
+    ) => {
+      setOptions(prevState => {
+        const newOptions = [...prevState]
+
+        const opt = newOptions.find(value => value.id === args.id)
+
+        if (opt) {
+          opt.quantity = quantity
+          return newOptions
+        }
+
+        return prevState
+      })
+    },
+    [setOptions]
+  )
+
   return (
     <DailyPackContext.Provider
-      value={{ table, options, addItem, orderDosage, removeItem }}
+      value={{
+        table,
+        options,
+        addItem,
+        orderDosage,
+        removeItem,
+        changeQuantity,
+      }}
     >
       {children}
     </DailyPackContext.Provider>
