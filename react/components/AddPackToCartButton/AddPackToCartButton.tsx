@@ -56,6 +56,7 @@ const AddPackToCartButton: FC<{ showToast: Function }> = ({ showToast }) => {
           target: '_blank',
         },
       })
+      window.location.assign('/checkout')
     }
   }
 
