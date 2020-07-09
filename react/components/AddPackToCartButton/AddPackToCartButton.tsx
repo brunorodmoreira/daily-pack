@@ -29,6 +29,7 @@ const AddPackToCartButton: FC<{ showToast: Function }> = ({ showToast }) => {
     const addedItem = addItem(
       [
         {
+          index: orderForm.items.length,
           id: ITEM_ID,
           quantity: 1,
           seller: '1',
@@ -56,7 +57,6 @@ const AddPackToCartButton: FC<{ showToast: Function }> = ({ showToast }) => {
           target: '_blank',
         },
       })
-      window.location.assign('/checkout')
     }
   }
 
