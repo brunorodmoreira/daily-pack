@@ -79,12 +79,13 @@ function reducer(
 
   switch (action.type) {
     case 'CHANGE_QUANTITY':
-      return typeof quantity !== 'number'
-        ? { ...state }
-        : {
-            ...state,
-            [element]: dosage * quantity,
-          }
+      if (typeof quantity !== 'number') {
+        return { ...state }
+      }
+      return {
+        ...state,
+        [element]: dosage * quantity,
+      }
 
     case 'ADD_ITEM':
       return {
@@ -169,6 +170,20 @@ export const DailyPackContextProvider: FC<Props> = ({
         removeItem(args)
       }
 
+      const maxDailyDosage = table.find(
+        row =>
+          row.element?.toLocaleLowerCase() === args.element?.toLocaleLowerCase()
+      )?.dailyDosage
+
+      if (
+        typeof maxDailyDosage === 'string' &&
+        typeof args.dosage === 'string' &&
+        Number(args.dosage) * quantity > Number(maxDailyDosage)
+      ) {
+        console.error('Invalid quantity')
+        return
+      }
+
       setOptions(prevState => {
         const newOptions = [...prevState]
 
@@ -187,7 +202,7 @@ export const DailyPackContextProvider: FC<Props> = ({
         args: { ...args, quantity },
       })
     },
-    [removeItem, setOptions, dispatchOrderDosage]
+    [table, removeItem, setOptions, dispatchOrderDosage]
   )
 
   return (
