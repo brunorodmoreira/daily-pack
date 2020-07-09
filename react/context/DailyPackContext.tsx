@@ -1,4 +1,11 @@
-import React, { FC, useCallback, useContext, useMemo, useState } from 'react'
+import React, {
+  FC,
+  useCallback,
+  useContext,
+  useMemo,
+  useReducer,
+  useState,
+} from 'react'
 
 interface Option {
   assemblyId: string
@@ -48,12 +55,58 @@ function fieldsToObject(fields: Field[]): Record<string, string> {
   }, {})
 }
 
+function reducer(
+  state: Record<string, number>,
+  action: {
+    type: 'ADD_ITEM' | 'REMOVE_ITEM' | 'CHANGE_QUANTITY'
+    args: {
+      dosage?: string
+      element?: string
+      quantity?: number
+      previousQuantity?: number
+    }
+  }
+) {
+  const {
+    args: { element, dosage: rawDosage, quantity, previousQuantity },
+  } = action
+
+  if (typeof element !== 'string' || typeof rawDosage !== 'string') {
+    return state
+  }
+
+  const dosage = Number(rawDosage) || 0
+
+  switch (action.type) {
+    case 'CHANGE_QUANTITY':
+      return typeof quantity !== 'number'
+        ? { ...state }
+        : {
+            ...state,
+            [element]: dosage * quantity,
+          }
+
+    case 'ADD_ITEM':
+      return {
+        ...state,
+        [element]: (state[element] || 0) + dosage,
+      }
+    case 'REMOVE_ITEM':
+      return {
+        ...state,
+        [element]: (state[element] || 0) - dosage * (previousQuantity ?? 0),
+      }
+    default:
+      return { ...state }
+  }
+}
+
 export const DailyPackContextProvider: FC<Props> = ({
   documents,
   children,
 }) => {
   const [options, setOptions] = useState<Option[]>([])
-  const [orderDosage, setOrderDosage] = useState<Record<string, number>>({})
+  const [orderDosage, dispatchOrderDosage] = useReducer(reducer, {})
 
   const table = useMemo(
     () =>
@@ -83,18 +136,9 @@ export const DailyPackContextProvider: FC<Props> = ({
           },
         ]
       })
-
-      if (typeof args.element !== 'string' || typeof args.dosage !== 'string') {
-        return
-      }
-
-      setOrderDosage(prevState => ({
-        ...prevState,
-        [args.element as string]:
-          (prevState[args.element as string] || 0) + Number(args.dosage) || 0,
-      }))
+      dispatchOrderDosage({ type: 'ADD_ITEM', args: { ...args } })
     },
-    [setOptions]
+    [setOptions, dispatchOrderDosage]
   )
 
   const removeItem = useCallback(
@@ -108,18 +152,12 @@ export const DailyPackContextProvider: FC<Props> = ({
 
       setOptions(prevState => prevState.filter(value => value.id !== args.id))
 
-      if (typeof args.element !== 'string' || typeof args.dosage !== 'string') {
-        return
-      }
-
-      setOrderDosage(prevState => ({
-        ...prevState,
-        [args.element as string]:
-          (prevState[args.element as string] || 0) -
-            Number(args.dosage) * previousQuantity || 0,
-      }))
+      dispatchOrderDosage({
+        type: 'REMOVE_ITEM',
+        args: { ...args, previousQuantity },
+      })
     },
-    [options, setOptions]
+    [options, setOptions, dispatchOrderDosage]
   )
 
   const changeQuantity = useCallback(
@@ -144,16 +182,12 @@ export const DailyPackContextProvider: FC<Props> = ({
         return prevState
       })
 
-      if (typeof args.element !== 'string' || typeof args.dosage !== 'string') {
-        return
-      }
-
-      setOrderDosage(prevState => ({
-        ...prevState,
-        [args.element as string]: Number(args.dosage) * quantity,
-      }))
+      dispatchOrderDosage({
+        type: 'CHANGE_QUANTITY',
+        args: { ...args, quantity },
+      })
     },
-    [removeItem, setOptions]
+    [removeItem, setOptions, dispatchOrderDosage]
   )
 
   return (
