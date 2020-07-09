@@ -1,4 +1,4 @@
-import React, { FC, useMemo } from 'react'
+import React, { FC, useCallback, useMemo } from 'react'
 import { ExtensionPoint } from 'vtex.render-runtime'
 import { useQuery } from 'react-apollo'
 
@@ -56,15 +56,23 @@ const OrderPackTable: FC = props => {
     )
   }, [data, options])
 
+  const onRemove = useCallback(
+    (uniqueId: string) => removeItem(parseUniqueId(uniqueId)),
+    [removeItem]
+  )
+
+  const onQuantityChange = useCallback(
+    (uniqueId: string, quantity: number) =>
+      changeQuantity(parseUniqueId(uniqueId), quantity),
+    [changeQuantity]
+  )
   return (
     <ExtensionPoint
       id="product-list"
       {...props}
       items={items}
-      onRemove={(uniqueId: string) => removeItem(parseUniqueId(uniqueId))}
-      onQuantityChange={(uniqueId: string, quantity: number) =>
-        changeQuantity(parseUniqueId(uniqueId), quantity)
-      }
+      onRemove={onRemove}
+      onQuantityChange={onQuantityChange}
     />
   )
 }
