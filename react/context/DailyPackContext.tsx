@@ -6,6 +6,7 @@ import React, {
   useReducer,
   useState,
 } from 'react'
+import { withToast } from 'vtex.styleguide'
 
 interface Option {
   assemblyId: string
@@ -102,9 +103,10 @@ function reducer(
   }
 }
 
-export const DailyPackContextProvider: FC<Props> = ({
+const ContextProvider: FC<Props & { showToast: (args: any) => void }> = ({
   documents,
   children,
+  showToast,
 }) => {
   const [options, setOptions] = useState<Option[]>([])
   const [orderDosage, dispatchOrderDosage] = useReducer(reducer, {})
@@ -180,7 +182,10 @@ export const DailyPackContextProvider: FC<Props> = ({
         typeof args.dosage === 'string' &&
         Number(args.dosage) * quantity > Number(maxDailyDosage)
       ) {
-        console.error('Invalid quantity')
+        showToast({
+          message: `Invalid quantity for ${args.element} element`,
+          duration: 5000,
+        })
         return
       }
 
@@ -202,7 +207,7 @@ export const DailyPackContextProvider: FC<Props> = ({
         args: { ...args, quantity },
       })
     },
-    [table, removeItem, setOptions, dispatchOrderDosage]
+    [table, removeItem, setOptions, dispatchOrderDosage, showToast]
   )
 
   return (
@@ -220,6 +225,8 @@ export const DailyPackContextProvider: FC<Props> = ({
     </DailyPackContext.Provider>
   )
 }
+
+export const DailyPackContextProvider = withToast(ContextProvider) as FC<Props>
 
 export const useDailyPack = () => {
   return useContext(DailyPackContext)
