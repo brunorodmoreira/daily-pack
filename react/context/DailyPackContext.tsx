@@ -17,7 +17,6 @@ interface Option {
     dosage?: number
     minQuantity?: number
     maxQuantity?: number
-    maxDailyDosage?: number
   }
 }
 
@@ -26,6 +25,7 @@ const noop = () => {}
 const DailyPackContext = React.createContext<{
   table: Array<Record<string, string>>
   options: Option[]
+  composition: Composition
   orderDosage: Record<string, number>
   addItem: (args: { id: string; dosage?: string; element?: string }) => void
   removeItem: (args: { id: string; dosage?: string; element?: string }) => void
@@ -36,6 +36,7 @@ const DailyPackContext = React.createContext<{
 }>({
   table: [],
   options: [],
+  composition: {} as Composition,
   orderDosage: {},
   addItem: noop,
   removeItem: noop,
@@ -118,14 +119,22 @@ const ContextProvider: FC<Props & { showToast: (args: any) => void }> = ({
   const [options, setOptions] = useState<Option[]>([])
   const [orderDosage, dispatchOrderDosage] = useReducer(reducer, {})
 
-  const composition = useMemo(
-    () =>
+  const composition = useMemo(() => {
+    const { items = [], maxQuantity, minQuantity } =
       product?.itemMetadata.items
         .find(item => item.id === selectedItem.itemId)
         ?.assemblyOptions.find(opt => opt.id === 'dailypack_pills')
-        ?.composition ?? { items: [] },
-    [product, selectedItem]
-  )
+        ?.composition ?? ({} as Composition)
+    return {
+      minQuantity,
+      maxQuantity,
+      items: items.map((item: CompositionItem) => ({
+        id: item.id,
+        minQuantity: item.minQuantity,
+        maxQuantity: item.maxQuantity,
+      })),
+    }
+  }, [product, selectedItem])
 
   const table = useMemo(
     () =>
@@ -148,9 +157,6 @@ const ContextProvider: FC<Props & { showToast: (args: any) => void }> = ({
         const { minQuantity = 0, maxQuantity } =
           composition.items.find(item => item.id === args.id) ?? {}
 
-        const dailyDosage = table.find(value => value.element === args.element)
-          ?.dailyDosage
-
         return [
           ...newOptions,
           {
@@ -161,15 +167,14 @@ const ContextProvider: FC<Props & { showToast: (args: any) => void }> = ({
               dosage: Number(args.dosage) ?? null,
               minQuantity,
               maxQuantity,
-              maxDailyDosage: Number(dailyDosage) ?? null,
             },
           },
         ]
       })
 
-      // dispatchOrderDosage({ type: 'ADD_ITEM', args: { ...args } })
+      dispatchOrderDosage({ type: 'ADD_ITEM', args: { ...args } })
     },
-    [composition.items, table]
+    [composition.items, dispatchOrderDosage]
   )
 
   const removeItem = useCallback(
@@ -243,6 +248,7 @@ const ContextProvider: FC<Props & { showToast: (args: any) => void }> = ({
       value={{
         table,
         options,
+        composition,
         addItem,
         orderDosage,
         removeItem,
