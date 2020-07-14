@@ -10,12 +10,20 @@ const DailyPackContext = React.createContext<{
   options: Option[]
   composition: Composition
   orderDosage: Record<string, number>
-  addItem: (args: { id: string; dosage?: string; element?: string }) => void
-  removeItem: (args: { id: string; dosage?: string; element?: string }) => void
+  addItem: (args: {
+    id: string
+    dosage?: string
+    element?: string
+  }) => boolean | void
+  removeItem: (args: {
+    id: string
+    dosage?: string
+    element?: string
+  }) => boolean | void
   changeQuantity: (
     args: { id: string; dosage?: string; element?: string },
     quantity: number
-  ) => void
+  ) => boolean | void
 }>({
   table: [],
   options: [],
