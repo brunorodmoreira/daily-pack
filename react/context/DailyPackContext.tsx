@@ -1,35 +1,33 @@
-import React, {
-  FC,
-  useCallback,
-  useContext,
-  useMemo,
-  useReducer,
-  useState,
-} from 'react'
-import { withToast } from 'vtex.styleguide'
+import React, { FC, useCallback, useContext, useMemo, useReducer } from 'react'
+import useProduct from 'vtex.product-context/useProduct'
 
-interface Option {
-  assemblyId: string
-  id: string
-  quantity: number
-  seller: string
-}
+import reducer from './reducer'
 
 const noop = () => {}
 
 const DailyPackContext = React.createContext<{
   table: Array<Record<string, string>>
   options: Option[]
+  composition: Composition
   orderDosage: Record<string, number>
-  addItem: (args: { id: string; dosage?: string; element?: string }) => void
-  removeItem: (args: { id: string; dosage?: string; element?: string }) => void
+  addItem: (args: {
+    id: string
+    dosage?: string
+    element?: string
+  }) => boolean | void
+  removeItem: (args: {
+    id: string
+    dosage?: string
+    element?: string
+  }) => boolean | void
   changeQuantity: (
     args: { id: string; dosage?: string; element?: string },
     quantity: number
-  ) => void
+  ) => boolean | void
 }>({
   table: [],
   options: [],
+  composition: {} as Composition,
   orderDosage: {},
   addItem: noop,
   removeItem: noop,
@@ -56,60 +54,29 @@ function fieldsToObject(fields: Field[]): Record<string, string> {
   }, {})
 }
 
-function reducer(
-  state: Record<string, number>,
-  action: {
-    type: 'ADD_ITEM' | 'REMOVE_ITEM' | 'CHANGE_QUANTITY'
-    args: {
-      dosage?: string
-      element?: string
-      quantity?: number
-      previousQuantity?: number
-    }
-  }
-) {
-  const {
-    args: { element, dosage: rawDosage, quantity, previousQuantity },
-  } = action
-
-  if (typeof element !== 'string' || typeof rawDosage !== 'string') {
-    return state
-  }
-
-  const dosage = Number(rawDosage) || 0
-
-  switch (action.type) {
-    case 'CHANGE_QUANTITY':
-      if (typeof quantity !== 'number') {
-        return { ...state }
-      }
-      return {
-        ...state,
-        [element]: dosage * quantity,
-      }
-
-    case 'ADD_ITEM':
-      return {
-        ...state,
-        [element]: (state[element] || 0) + dosage,
-      }
-    case 'REMOVE_ITEM':
-      return {
-        ...state,
-        [element]: (state[element] || 0) - dosage * (previousQuantity ?? 0),
-      }
-    default:
-      return { ...state }
-  }
-}
-
-const ContextProvider: FC<Props & { showToast: (args: any) => void }> = ({
+export const DailyPackContextProvider: FC<Props> = ({
   documents,
   children,
-  showToast,
 }) => {
-  const [options, setOptions] = useState<Option[]>([])
-  const [orderDosage, dispatchOrderDosage] = useReducer(reducer, {})
+  const { product, selectedItem } = useProduct()
+  const [options, dispatch] = useReducer(reducer, [])
+
+  const composition = useMemo(() => {
+    const { items = [], maxQuantity, minQuantity } =
+      product?.itemMetadata.items
+        .find(item => item.id === selectedItem.itemId)
+        ?.assemblyOptions.find(opt => opt.id === 'dailypack_pills')
+        ?.composition ?? ({} as Composition)
+    return {
+      minQuantity,
+      maxQuantity,
+      items: items.map((item: CompositionItem) => ({
+        id: item.id,
+        minQuantity: item.minQuantity,
+        maxQuantity: item.maxQuantity,
+      })),
+    }
+  }, [product, selectedItem])
 
   const table = useMemo(
     () =>
@@ -117,50 +84,61 @@ const ContextProvider: FC<Props & { showToast: (args: any) => void }> = ({
     [documents]
   )
 
+  const orderDosage = useMemo(() => {
+    return options.reduce((acc, curr) => {
+      const {
+        quantity,
+        metadata: { dosage, element },
+      } = curr
+
+      if (typeof element !== 'string' || typeof dosage !== 'number') {
+        return acc
+      }
+
+      if (!acc[element]) {
+        acc[element] = 0
+      }
+
+      acc[element] += dosage * quantity
+      return acc
+    }, {} as Record<string, number>)
+  }, [options])
+
   const addItem = useCallback(
     (args: { id: string; dosage?: string; element?: string }) => {
-      setOptions(prevState => {
-        const newOptions = [...prevState]
+      const maxDailyDosage = table.find(
+        row => row.element?.toLowerCase() === args.element?.toLowerCase()
+      )?.dailyDosage
 
-        const opt = newOptions.find(value => value.id === args.id)
+      const maxQuantity = composition.items.find(value => value.id === args.id)
+        ?.maxQuantity
 
-        if (opt) {
-          opt.quantity++
-          return newOptions
-        }
+      const quantity = options.find(opt => opt.id === args.id)?.quantity ?? 0
 
-        return [
-          ...newOptions,
-          {
-            assemblyId: 'dailypack_pills',
-            seller: '1',
-            quantity: 1,
-            id: args.id,
-          },
-        ]
-      })
-      dispatchOrderDosage({ type: 'ADD_ITEM', args: { ...args } })
+      if (typeof maxQuantity === 'number' && quantity >= maxQuantity) {
+        return false
+      }
+
+      if (
+        typeof maxDailyDosage === 'string' &&
+        typeof args.dosage === 'string' &&
+        Number(args.dosage) * quantity > Number(maxDailyDosage)
+      ) {
+        return false
+      }
+
+      dispatch({ type: 'ADD_ITEM', args })
+      return true
     },
-    [setOptions, dispatchOrderDosage]
+    [composition.items, options, table]
   )
 
   const removeItem = useCallback(
     (args: { id: string; dosage?: string; element?: string }) => {
-      const previousQuantity = options.find(value => value.id === args.id)
-        ?.quantity
-
-      if (!previousQuantity) {
-        return
-      }
-
-      setOptions(prevState => prevState.filter(value => value.id !== args.id))
-
-      dispatchOrderDosage({
-        type: 'REMOVE_ITEM',
-        args: { ...args, previousQuantity },
-      })
+      dispatch({ type: 'REMOVE_ITEM', args })
+      return true
     },
-    [options, setOptions, dispatchOrderDosage]
+    []
   )
 
   const changeQuantity = useCallback(
@@ -168,46 +146,33 @@ const ContextProvider: FC<Props & { showToast: (args: any) => void }> = ({
       args: { id: string; dosage?: string; element?: string },
       quantity: number
     ) => {
-      if (quantity === 0) {
-        removeItem(args)
-      }
-
       const maxDailyDosage = table.find(
-        row =>
-          row.element?.toLocaleLowerCase() === args.element?.toLocaleLowerCase()
+        row => row.element?.toLowerCase() === args.element?.toLowerCase()
       )?.dailyDosage
+
+      const maxQuantity = composition.items.find(value => value.id === args.id)
+        ?.maxQuantity
+
+      if (
+        typeof maxQuantity === 'number' &&
+        quantity > 0 &&
+        quantity >= maxQuantity
+      ) {
+        return false
+      }
 
       if (
         typeof maxDailyDosage === 'string' &&
         typeof args.dosage === 'string' &&
         Number(args.dosage) * quantity > Number(maxDailyDosage)
       ) {
-        showToast({
-          message: `Invalid quantity for ${args.element} element`,
-          duration: 5000,
-        })
-        return
+        return false
       }
 
-      setOptions(prevState => {
-        const newOptions = [...prevState]
-
-        const opt = newOptions.find(value => value.id === args.id)
-
-        if (opt) {
-          opt.quantity = quantity
-          return newOptions
-        }
-
-        return prevState
-      })
-
-      dispatchOrderDosage({
-        type: 'CHANGE_QUANTITY',
-        args: { ...args, quantity },
-      })
+      dispatch({ type: 'CHANGE_QUANTITY', args: { ...args, quantity } })
+      return true
     },
-    [table, removeItem, setOptions, dispatchOrderDosage, showToast]
+    [composition.items, table]
   )
 
   return (
@@ -215,6 +180,7 @@ const ContextProvider: FC<Props & { showToast: (args: any) => void }> = ({
       value={{
         table,
         options,
+        composition,
         addItem,
         orderDosage,
         removeItem,
@@ -225,8 +191,6 @@ const ContextProvider: FC<Props & { showToast: (args: any) => void }> = ({
     </DailyPackContext.Provider>
   )
 }
-
-export const DailyPackContextProvider = withToast(ContextProvider) as FC<Props>
 
 export const useDailyPack = () => {
   return useContext(DailyPackContext)

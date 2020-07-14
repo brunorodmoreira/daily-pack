@@ -1,16 +1,16 @@
 import React, { FC, useCallback, useMemo } from 'react'
-import { ExtensionPoint } from 'vtex.render-runtime'
 import { useQuery } from 'react-apollo'
 
 import { useDailyPack } from '../../context/DailyPackContext'
 import PRODUCTS_QUERY from '../../graphql/products.graphql'
+import ItemList from './ItemList'
 
 const getUniqueId = (itemId: string, element: string, dosage: string): string =>
   btoa(JSON.stringify({ id: itemId, element, dosage }))
 
 const parseUniqueId = (uniqueId: string): any => JSON.parse(atob(uniqueId))
 
-const OrderPackTable: FC = props => {
+const OrderPackTable: FC = () => {
   const { options, removeItem, changeQuantity } = useDailyPack()
 
   const itemIds = useMemo(() => options.map(value => value.id), [options])
@@ -67,9 +67,7 @@ const OrderPackTable: FC = props => {
     [changeQuantity]
   )
   return (
-    <ExtensionPoint
-      id="product-list"
-      {...props}
+    <ItemList
       items={items}
       onRemove={onRemove}
       onQuantityChange={onQuantityChange}
