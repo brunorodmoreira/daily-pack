@@ -6,13 +6,12 @@ import React, {
   useReducer,
   useState,
 } from 'react'
-import { withToast } from 'vtex.styleguide'
 import useProduct from 'vtex.product-context/useProduct'
 
 interface Option {
   id: string
   quantity: number
-  metadata?: {
+  metadata: {
     element?: string
     dosage?: number
     minQuantity?: number
@@ -110,14 +109,13 @@ function reducer(
   }
 }
 
-const ContextProvider: FC<Props & { showToast: (args: any) => void }> = ({
+export const DailyPackContextProvider: FC<Props> = ({
   documents,
   children,
-  showToast,
 }) => {
   const { product, selectedItem } = useProduct()
   const [options, setOptions] = useState<Option[]>([])
-  const [orderDosage, dispatchOrderDosage] = useReducer(reducer, {})
+  const [, dispatchOrderDosage] = useReducer(reducer, {})
 
   const composition = useMemo(() => {
     const { items = [], maxQuantity, minQuantity } =
@@ -142,6 +140,26 @@ const ContextProvider: FC<Props & { showToast: (args: any) => void }> = ({
     [documents]
   )
 
+  const orderDosage = useMemo(() => {
+    return options.reduce((acc, curr) => {
+      const {
+        quantity,
+        metadata: { dosage, element },
+      } = curr
+
+      if (typeof element !== 'string' || typeof dosage !== 'number') {
+        return acc
+      }
+
+      if (!acc[element]) {
+        acc[element] = 0
+      }
+
+      acc[element] += dosage * quantity
+      return acc
+    }, {} as Record<string, number>)
+  }, [options])
+
   const addItem = useCallback(
     (args: { id: string; dosage?: string; element?: string }) => {
       setOptions(prevState => {
@@ -149,13 +167,16 @@ const ContextProvider: FC<Props & { showToast: (args: any) => void }> = ({
 
         const opt = newOptions.find(value => value.id === args.id)
 
-        if (opt) {
-          opt.quantity++
-          return newOptions
-        }
-
         const { minQuantity = 0, maxQuantity } =
           composition.items.find(item => item.id === args.id) ?? {}
+
+        if (opt) {
+          if (typeof maxQuantity !== 'number' || opt.quantity < maxQuantity) {
+            opt.quantity++
+          }
+
+          return newOptions
+        }
 
         return [
           ...newOptions,
@@ -215,10 +236,6 @@ const ContextProvider: FC<Props & { showToast: (args: any) => void }> = ({
         typeof args.dosage === 'string' &&
         Number(args.dosage) * quantity > Number(maxDailyDosage)
       ) {
-        showToast({
-          message: `Invalid quantity for ${args.element} element`,
-          duration: 5000,
-        })
         return
       }
 
@@ -240,7 +257,7 @@ const ContextProvider: FC<Props & { showToast: (args: any) => void }> = ({
         args: { ...args, quantity },
       })
     },
-    [table, removeItem, setOptions, dispatchOrderDosage, showToast]
+    [table, removeItem, setOptions, dispatchOrderDosage]
   )
 
   return (
@@ -259,8 +276,6 @@ const ContextProvider: FC<Props & { showToast: (args: any) => void }> = ({
     </DailyPackContext.Provider>
   )
 }
-
-export const DailyPackContextProvider = withToast(ContextProvider) as FC<Props>
 
 export const useDailyPack = () => {
   return useContext(DailyPackContext)
