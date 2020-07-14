@@ -1,11 +1,4 @@
-import React, {
-  FC,
-  useCallback,
-  useContext,
-  useMemo,
-  useReducer,
-  useState,
-} from 'react'
+import React, { FC, useCallback, useContext, useMemo, useState } from 'react'
 import useProduct from 'vtex.product-context/useProduct'
 
 interface Option {
@@ -62,61 +55,12 @@ function fieldsToObject(fields: Field[]): Record<string, string> {
   }, {})
 }
 
-function reducer(
-  state: Record<string, number>,
-  action: {
-    type: 'ADD_ITEM' | 'REMOVE_ITEM' | 'CHANGE_QUANTITY'
-    args: {
-      dosage?: string
-      element?: string
-      quantity?: number
-      previousQuantity?: number
-    }
-  }
-) {
-  const {
-    args: { element, dosage: rawDosage, quantity, previousQuantity },
-  } = action
-
-  if (typeof element !== 'string' || typeof rawDosage !== 'string') {
-    return state
-  }
-
-  const dosage = Number(rawDosage) || 0
-
-  switch (action.type) {
-    case 'CHANGE_QUANTITY':
-      if (typeof quantity !== 'number') {
-        return { ...state }
-      }
-      return {
-        ...state,
-        [element]: dosage * quantity,
-      }
-
-    case 'ADD_ITEM':
-      return {
-        ...state,
-        [element]: (state[element] || 0) + dosage,
-      }
-    case 'REMOVE_ITEM':
-      return {
-        ...state,
-        [element]: (state[element] || 0) - dosage * (previousQuantity ?? 0),
-      }
-    default:
-      return { ...state }
-  }
-}
-
 export const DailyPackContextProvider: FC<Props> = ({
   documents,
   children,
 }) => {
   const { product, selectedItem } = useProduct()
   const [options, setOptions] = useState<Option[]>([])
-  const [, dispatchOrderDosage] = useReducer(reducer, {})
-
   const composition = useMemo(() => {
     const { items = [], maxQuantity, minQuantity } =
       product?.itemMetadata.items
@@ -192,10 +136,8 @@ export const DailyPackContextProvider: FC<Props> = ({
           },
         ]
       })
-
-      dispatchOrderDosage({ type: 'ADD_ITEM', args: { ...args } })
     },
-    [composition.items, dispatchOrderDosage]
+    [composition.items]
   )
 
   const removeItem = useCallback(
@@ -208,13 +150,8 @@ export const DailyPackContextProvider: FC<Props> = ({
       }
 
       setOptions(prevState => prevState.filter(value => value.id !== args.id))
-
-      dispatchOrderDosage({
-        type: 'REMOVE_ITEM',
-        args: { ...args, previousQuantity },
-      })
     },
-    [options, setOptions, dispatchOrderDosage]
+    [options, setOptions]
   )
 
   const changeQuantity = useCallback(
@@ -251,13 +188,8 @@ export const DailyPackContextProvider: FC<Props> = ({
 
         return prevState
       })
-
-      dispatchOrderDosage({
-        type: 'CHANGE_QUANTITY',
-        args: { ...args, quantity },
-      })
     },
-    [table, removeItem, setOptions, dispatchOrderDosage]
+    [table, removeItem, setOptions]
   )
 
   return (
