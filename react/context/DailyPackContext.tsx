@@ -1,16 +1,14 @@
-import React, { FC, useCallback, useContext, useMemo, useState } from 'react'
+import React, {
+  FC,
+  useCallback,
+  useContext,
+  useMemo,
+  useReducer,
+  useState,
+} from 'react'
 import useProduct from 'vtex.product-context/useProduct'
 
-interface Option {
-  id: string
-  quantity: number
-  metadata: {
-    element?: string
-    dosage?: number
-    minQuantity?: number
-    maxQuantity?: number
-  }
-}
+import reducer from './reducer'
 
 const noop = () => {}
 
@@ -61,6 +59,10 @@ export const DailyPackContextProvider: FC<Props> = ({
 }) => {
   const { product, selectedItem } = useProduct()
   const [options, setOptions] = useState<Option[]>([])
+  const [optionsReducer, dispatchOptions] = useReducer(reducer, [])
+  // eslint-disable-next-line no-console
+  console.log(optionsReducer)
+
   const composition = useMemo(() => {
     const { items = [], maxQuantity, minQuantity } =
       product?.itemMetadata.items
@@ -136,6 +138,8 @@ export const DailyPackContextProvider: FC<Props> = ({
           },
         ]
       })
+
+      dispatchOptions({ type: 'ADD_ITEM', args })
     },
     [composition.items]
   )
@@ -150,6 +154,7 @@ export const DailyPackContextProvider: FC<Props> = ({
       }
 
       setOptions(prevState => prevState.filter(value => value.id !== args.id))
+      dispatchOptions({ type: 'REMOVE_ITEM', args })
     },
     [options, setOptions]
   )
@@ -187,6 +192,8 @@ export const DailyPackContextProvider: FC<Props> = ({
 
         return prevState
       })
+
+      dispatchOptions({ type: 'CHANGE_QUANTITY', args: { ...args, quantity } })
     },
     [table, removeItem, setOptions]
   )
