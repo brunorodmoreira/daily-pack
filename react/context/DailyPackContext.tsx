@@ -7,12 +7,17 @@ import React, {
   useState,
 } from 'react'
 import { withToast } from 'vtex.styleguide'
+import useProduct from 'vtex.product-context/useProduct'
 
 interface Option {
-  assemblyId: string
   id: string
   quantity: number
-  seller: string
+  metadata?: {
+    element?: string
+    dosage?: number
+    minQuantity?: number
+    maxQuantity?: number
+  }
 }
 
 const noop = () => {}
@@ -108,8 +113,18 @@ const ContextProvider: FC<Props & { showToast: (args: any) => void }> = ({
   children,
   showToast,
 }) => {
+  const { product, selectedItem } = useProduct()
   const [options, setOptions] = useState<Option[]>([])
   const [orderDosage, dispatchOrderDosage] = useReducer(reducer, {})
+
+  const composition = useMemo(
+    () =>
+      product?.itemMetadata.items
+        .find(item => item.id === selectedItem.itemId)
+        ?.assemblyOptions.find(opt => opt.id === 'dailypack_pills')
+        ?.composition ?? { items: [] },
+    [product, selectedItem]
+  )
 
   const table = useMemo(
     () =>
@@ -129,19 +144,27 @@ const ContextProvider: FC<Props & { showToast: (args: any) => void }> = ({
           return newOptions
         }
 
+        const { minQuantity = 0, maxQuantity } =
+          composition.items.find(item => item.id === args.id) ?? {}
+
         return [
           ...newOptions,
           {
-            assemblyId: 'dailypack_pills',
-            seller: '1',
-            quantity: 1,
             id: args.id,
+            quantity: 1,
+            metadata: {
+              element: args.element,
+              dosage: Number(args.dosage) ?? null,
+              minQuantity,
+              maxQuantity,
+            },
           },
         ]
       })
-      dispatchOrderDosage({ type: 'ADD_ITEM', args: { ...args } })
+
+      // dispatchOrderDosage({ type: 'ADD_ITEM', args: { ...args } })
     },
-    [setOptions, dispatchOrderDosage]
+    [composition.items]
   )
 
   const removeItem = useCallback(

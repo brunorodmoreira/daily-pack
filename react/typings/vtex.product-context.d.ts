@@ -1,5 +1,7 @@
 interface CompositionItem {
   id: string
+  minQuantity?: number
+  maxQuantity?: number
 }
 
 interface AssemblyOption {
