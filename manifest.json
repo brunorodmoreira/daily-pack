@@ -1,7 +1,7 @@
 {
   "vendor": "thomas",
   "name": "daily-pack",
-  "version": "0.0.0",
+  "version": "0.1.0",
   "title": "Daily Pack Demo",
   "description": "Implements the landing page for Daily Pack Composition",
   "builders": {
