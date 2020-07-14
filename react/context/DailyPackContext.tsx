@@ -164,8 +164,7 @@ export const DailyPackContextProvider: FC<Props> = ({
       }
 
       const maxDailyDosage = table.find(
-        row =>
-          row.element?.toLocaleLowerCase() === args.element?.toLocaleLowerCase()
+        row => row.element?.toLowerCase() === args.element?.toLowerCase()
       )?.dailyDosage
 
       if (
