@@ -1,11 +1,4 @@
-import React, {
-  FC,
-  useCallback,
-  useContext,
-  useMemo,
-  useReducer,
-  useState,
-} from 'react'
+import React, { FC, useCallback, useContext, useMemo, useReducer } from 'react'
 import useProduct from 'vtex.product-context/useProduct'
 
 import reducer from './reducer'
@@ -58,10 +51,7 @@ export const DailyPackContextProvider: FC<Props> = ({
   children,
 }) => {
   const { product, selectedItem } = useProduct()
-  const [options, setOptions] = useState<Option[]>([])
-  const [optionsReducer, dispatchOptions] = useReducer(reducer, [])
-  // eslint-disable-next-line no-console
-  console.log(optionsReducer)
+  const [options, dispatch] = useReducer(reducer, [])
 
   const composition = useMemo(() => {
     const { items = [], maxQuantity, minQuantity } =
@@ -108,55 +98,16 @@ export const DailyPackContextProvider: FC<Props> = ({
 
   const addItem = useCallback(
     (args: { id: string; dosage?: string; element?: string }) => {
-      setOptions(prevState => {
-        const newOptions = [...prevState]
-
-        const opt = newOptions.find(value => value.id === args.id)
-
-        const { minQuantity = 0, maxQuantity } =
-          composition.items.find(item => item.id === args.id) ?? {}
-
-        if (opt) {
-          if (typeof maxQuantity !== 'number' || opt.quantity < maxQuantity) {
-            opt.quantity++
-          }
-
-          return newOptions
-        }
-
-        return [
-          ...newOptions,
-          {
-            id: args.id,
-            quantity: 1,
-            metadata: {
-              element: args.element,
-              dosage: Number(args.dosage) ?? null,
-              minQuantity,
-              maxQuantity,
-            },
-          },
-        ]
-      })
-
-      dispatchOptions({ type: 'ADD_ITEM', args })
+      dispatch({ type: 'ADD_ITEM', args })
     },
-    [composition.items]
+    []
   )
 
   const removeItem = useCallback(
     (args: { id: string; dosage?: string; element?: string }) => {
-      const previousQuantity = options.find(value => value.id === args.id)
-        ?.quantity
-
-      if (!previousQuantity) {
-        return
-      }
-
-      setOptions(prevState => prevState.filter(value => value.id !== args.id))
-      dispatchOptions({ type: 'REMOVE_ITEM', args })
+      dispatch({ type: 'REMOVE_ITEM', args })
     },
-    [options, setOptions]
+    []
   )
 
   const changeQuantity = useCallback(
@@ -164,10 +115,6 @@ export const DailyPackContextProvider: FC<Props> = ({
       args: { id: string; dosage?: string; element?: string },
       quantity: number
     ) => {
-      if (quantity === 0) {
-        removeItem(args)
-      }
-
       const maxDailyDosage = table.find(
         row => row.element?.toLowerCase() === args.element?.toLowerCase()
       )?.dailyDosage
@@ -180,22 +127,9 @@ export const DailyPackContextProvider: FC<Props> = ({
         return
       }
 
-      setOptions(prevState => {
-        const newOptions = [...prevState]
-
-        const opt = newOptions.find(value => value.id === args.id)
-
-        if (opt) {
-          opt.quantity = quantity
-          return newOptions
-        }
-
-        return prevState
-      })
-
-      dispatchOptions({ type: 'CHANGE_QUANTITY', args: { ...args, quantity } })
+      dispatch({ type: 'CHANGE_QUANTITY', args: { ...args, quantity } })
     },
-    [table, removeItem, setOptions]
+    [table]
   )
 
   return (

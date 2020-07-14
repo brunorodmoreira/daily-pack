@@ -4,7 +4,5 @@ interface Option {
   metadata: {
     element?: string
     dosage?: number
-    minQuantity?: number
-    maxQuantity?: number
   }
 }
