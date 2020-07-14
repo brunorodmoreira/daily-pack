@@ -98,14 +98,37 @@ export const DailyPackContextProvider: FC<Props> = ({
 
   const addItem = useCallback(
     (args: { id: string; dosage?: string; element?: string }) => {
+      const maxDailyDosage = table.find(
+        row => row.element?.toLowerCase() === args.element?.toLowerCase()
+      )?.dailyDosage
+
+      const maxQuantity = composition.items.find(value => value.id === args.id)
+        ?.maxQuantity
+
+      const quantity = options.find(opt => opt.id === args.id)?.quantity ?? 0
+
+      if (typeof maxQuantity === 'number' && quantity >= maxQuantity) {
+        return false
+      }
+
+      if (
+        typeof maxDailyDosage === 'string' &&
+        typeof args.dosage === 'string' &&
+        Number(args.dosage) * quantity > Number(maxDailyDosage)
+      ) {
+        return false
+      }
+
       dispatch({ type: 'ADD_ITEM', args })
+      return true
     },
-    []
+    [composition.items, options, table]
   )
 
   const removeItem = useCallback(
     (args: { id: string; dosage?: string; element?: string }) => {
       dispatch({ type: 'REMOVE_ITEM', args })
+      return true
     },
     []
   )
@@ -119,17 +142,29 @@ export const DailyPackContextProvider: FC<Props> = ({
         row => row.element?.toLowerCase() === args.element?.toLowerCase()
       )?.dailyDosage
 
+      const maxQuantity = composition.items.find(value => value.id === args.id)
+        ?.maxQuantity
+
+      if (
+        typeof maxQuantity === 'number' &&
+        quantity > 0 &&
+        quantity >= maxQuantity
+      ) {
+        return false
+      }
+
       if (
         typeof maxDailyDosage === 'string' &&
         typeof args.dosage === 'string' &&
         Number(args.dosage) * quantity > Number(maxDailyDosage)
       ) {
-        return
+        return false
       }
 
       dispatch({ type: 'CHANGE_QUANTITY', args: { ...args, quantity } })
+      return true
     },
-    [table]
+    [composition.items, table]
   )
 
   return (
