@@ -8,7 +8,7 @@ import styles from './styles.css'
 
 const AddItemToPack: FC<{ showToast: Function }> = ({ showToast }) => {
   const { product, selectedItem } = useProduct()
-  const { addItem, table, orderDosage } = useDailyPack()
+  const { addItem, table, orderDosage, options, composition } = useDailyPack()
 
   const dosage = useMemo(
     () =>
@@ -23,28 +23,46 @@ const AddItemToPack: FC<{ showToast: Function }> = ({ showToast }) => {
     [product]
   )
 
-  const dailyDosage = useMemo(
+  const maxDailyDosage = useMemo(() => {
+    const dailyDosage = table.find(
+      value => value.element.toLowerCase() === element?.toLowerCase()
+    )?.dailyDosage
+    return Number(dailyDosage) || null
+  }, [table, element])
+
+  const quantity = useMemo(
+    () => options.find(opt => opt.id === selectedItem.itemId)?.quantity ?? 0,
+    [options, selectedItem.itemId]
+  )
+
+  const maxQuantity = useMemo(
     () =>
-      table.find(
-        value => value.element.toLowerCase() === element?.toLowerCase()
-      )?.dailyDosage,
-    [table, element]
+      composition.items.find(value => value.id === selectedItem.itemId)
+        ?.maxQuantity,
+    [composition.items, selectedItem.itemId]
+  )
+
+  const isQuantityAllowed = useMemo(
+    () => typeof maxQuantity !== 'number' || quantity < maxQuantity,
+    [maxQuantity, quantity]
   )
 
   const isElementAllowed = useMemo(() => {
     return (
-      typeof element === 'undefined' ||
-      typeof dosage === 'undefined' ||
-      typeof dailyDosage === 'undefined' ||
-      (orderDosage[element] || 0) + Number(dosage) <= Number(dailyDosage)
+      typeof element !== 'string' ||
+      typeof dosage !== 'string' ||
+      typeof maxDailyDosage !== 'number' ||
+      (orderDosage[element] || 0) + Number(dosage) <= maxDailyDosage
     )
-  }, [element, dosage, orderDosage, dailyDosage])
+  }, [element, dosage, orderDosage, maxDailyDosage])
+
+  const isBlocked = !(isQuantityAllowed && isElementAllowed)
 
   const handleClick = (event: React.MouseEvent<HTMLButtonElement>) => {
     event.stopPropagation()
     event.preventDefault()
 
-    if (isElementAllowed) {
+    if (!isBlocked) {
       addItem({ id: selectedItem.itemId, element, dosage })
       showToast({
         message: 'Item added to pack',
@@ -57,7 +75,7 @@ const AddItemToPack: FC<{ showToast: Function }> = ({ showToast }) => {
     <div
       className={`${applyModifiers(
         styles.addItemContainer,
-        isElementAllowed ? '' : 'disabled'
+        isBlocked ? 'disabled' : ''
       )} flex justify-center`}
     >
       <Button block onClick={handleClick}>
