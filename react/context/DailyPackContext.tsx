@@ -17,6 +17,7 @@ interface Option {
     dosage?: number
     minQuantity?: number
     maxQuantity?: number
+    maxDailyDosage?: number
   }
 }
 
@@ -147,6 +148,9 @@ const ContextProvider: FC<Props & { showToast: (args: any) => void }> = ({
         const { minQuantity = 0, maxQuantity } =
           composition.items.find(item => item.id === args.id) ?? {}
 
+        const dailyDosage = table.find(value => value.element === args.element)
+          ?.dailyDosage
+
         return [
           ...newOptions,
           {
@@ -157,6 +161,7 @@ const ContextProvider: FC<Props & { showToast: (args: any) => void }> = ({
               dosage: Number(args.dosage) ?? null,
               minQuantity,
               maxQuantity,
+              maxDailyDosage: Number(dailyDosage) ?? null,
             },
           },
         ]
@@ -164,7 +169,7 @@ const ContextProvider: FC<Props & { showToast: (args: any) => void }> = ({
 
       // dispatchOrderDosage({ type: 'ADD_ITEM', args: { ...args } })
     },
-    [composition.items]
+    [composition.items, table]
   )
 
   const removeItem = useCallback(
