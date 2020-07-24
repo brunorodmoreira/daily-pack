@@ -55,6 +55,11 @@ Since all of the necessary coding to create these three components was done insi
 
 By making the entire custom application become a "button" the marketing team can take control of the front-end. This reduces dependency between teams. While the developer works on his own app the marketing team can adjust the css and run their A/B tests.
 
+On the beginning of this project the merchandising team and the team responsible to develop the IO App can agree on a contract. Merch team will build the landing page /daily-pack while it waits for the app to be ready in order to import the new components. Once they are ready, the merch team can declare them as blocks. Below an example of how the landing page can declare a box that will hold the selected pills (order-pack-table) and the new add-pack-to-cart-button that, once all pills are selected, the user can add the bundle to the cart.
+
+![Media Placeholder](https://user-images.githubusercontent.com/23402009/88386406-396f0b80-cda8-11ea-965d-16dd15ccd0e2.png)
+
+
 Through a Master Data application an analyst from the Merchandising Team will be able to easily update limits on a compound, as well as add new products in the catalog.
 
 ![Media Placeholder](https://user-images.githubusercontent.com/23402009/88384674-c31cda00-cda4-11ea-955d-890abf3bbe50.png)
