@@ -1,0 +1,14 @@
+query RetailerLocations($where: String, $zipCode: String) {
+  searchDocuments(
+    acronym: "locations"
+    schema: "v1"
+    fields: ["zipCode", "stores"]
+    where: $where
+  ) @context(provider: "vtex.store-graphql") {
+    fields {
+      key
+      value
+    }
+  }
+}
+

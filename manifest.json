@@ -1,9 +1,9 @@
 {
   "vendor": "thomas",
-  "name": "daily-pack",
-  "version": "0.1.0",
-  "title": "Daily Pack Demo",
-  "description": "Implements the landing page for Daily Pack Composition",
+  "name": "retailer-location-pdp-plugin",
+  "version": "0.0.1",
+  "title": "Retailer Locations PDP Plugin",
+  "description": "Implements a plugin that replaces the Description component in a PDP",
   "builders": {
     "react": "3.x",
     "messages": "1.x",
@@ -23,7 +23,9 @@
     "vtex.css-handles": "0.x",
     "vtex.product-list": "0.x"
   },
-  "registries": ["smartcheckout"],
+  "registries": [
+    "smartcheckout"
+  ],
   "policies": [],
   "$schema": "https://raw.githubusercontent.com/vtex/node-vtex-api/master/gen/manifest.schema"
 }
